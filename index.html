@@ -86,6 +86,8 @@
             await streamOutput(inputText)
         } catch (error) {
             alert(error)
+            message = popMessage()
+            userInput.value = message.text
         }
         setResponding(false)
     }
@@ -119,6 +121,12 @@
         messages.scrollTop = messages.scrollHeight
         previousMessages[previousMessages.length - 1].text = text
         previousMessages[previousMessages.length - 1].hiddenText = hiddenText
+    }
+
+    function popMessage() {
+        const messageElement = document.querySelector(".message:last-child")
+        messageElement.remove()
+        return previousMessages.pop()
     }
 
     let websocket

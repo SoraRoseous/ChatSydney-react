@@ -73,14 +73,11 @@ body {
     border-radius: 5px;
 }
 
-.message:nth-child(odd) {
-    background-color: #f7f7f8;
-}
-
 .user-message {
     color: blue;
 }
 
 .assistant-message {
     color: purple;
+    background-color: #f7f7f8;
 }
