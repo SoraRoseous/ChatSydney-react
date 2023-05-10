@@ -25,6 +25,14 @@ textarea {
     width: 100%;
 }
 
+.message {
+    margin-bottom: 10px;
+}
+
+.message:nth-child(odd) {
+    background-color: #f7f7f8;
+}
+
 .user-message {
     color: blue;
 }

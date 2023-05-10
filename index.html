@@ -93,6 +93,7 @@
         if (text != null) {
             text = text.trim()
             const messageElement = document.createElement('div')
+            messageElement.classList.add('message')
             if (tag.startsWith('[user]')) {
                 messageElement.classList.add('user-message')
             } else if (tag.startsWith('[assistant]')) {
@@ -103,7 +104,6 @@
             messageElement.innerText = text
             messages.appendChild(messageElement)
             messages.scrollTop = messages.scrollHeight
-            messages.appendChild(document.createElement('br'))
         }
         previousMessages.push({tag, text, hiddenText})
     }
