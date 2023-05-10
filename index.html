@@ -9,18 +9,20 @@
 <body>
 <div class="container">
     <div class="chat-history">
-        <h3 style="display: inline">Chat History:</h3>
-        <button id="loadBtn">Load</button>
-        <input accept="application/json" id="fileInput" style="display: none" type="file">
-        <button id="saveBtn">Save</button>
+        <h3 class="heading">Chat History:</h3>
+        <div class="button-container">
+            <button id="loadBtn" class="button">Load</button>
+            <input accept="application/json" id="fileInput" type="file" style="display: none">
+            <button id="saveBtn" class="button">Save</button>
+        </div>
         <div class="messages" id="messages"></div>
     </div>
     <div class="user-input">
-        <h3 style="display: inline">User Input:</h3>
-        <div id="suggestedResponsesContainer" style="display: inline-block"></div>
-        <textarea id="userInput" rows="5"></textarea>
-        <button id="sendBtn">Send</button>
-        <select id="send-mode-selector" onchange="enterMode = this.value">
+        <h3 class="heading">User Input:</h3>
+        <div id="suggestedResponsesContainer"></div>
+        <textarea id="userInput" rows="5" class="textarea"></textarea>
+        <button id="sendBtn" class="button">Send</button>
+        <select id="send-mode-selector" class="selector" onchange="enterMode = this.value">
             <option value="enter">Press Enter to send</option>
             <option value="ctrl-enter">Press Ctrl+Enter to send</option>
         </select>
