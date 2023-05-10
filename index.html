@@ -29,7 +29,24 @@
         </select>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
 <script>
+    const renderer = {
+        del(text) {
+            return `~${text}~`
+        }
+    }
+    marked.use({breaks: true, renderer})
+    marked.use(markedHighlight.markedHighlight({
+        langPrefix: 'hljs language-',
+        highlight(code, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, {language}).value;
+        }
+    }));
     const messages = document.getElementById('messages')
     const userInput = document.getElementById('userInput')
     const sendBtn = document.getElementById('sendBtn')
@@ -109,7 +126,7 @@
             } else {
                 messageElement.classList.add('other-message')
             }
-            messageElement.innerText = text
+            messageElement.innerHTML = marked.parse(text)
             messages.appendChild(messageElement)
             messages.scrollTop = messages.scrollHeight
         }
@@ -121,7 +138,7 @@
         hiddenText = hiddenText.trim()
         const messageElements = document.getElementsByClassName("assistant-message")
         const messageElement = messageElements[messageElements.length - 1]
-        messageElement.innerText = text
+        messageElement.innerHTML = marked.parse(text)
         messages.scrollTop = messages.scrollHeight
         previousMessages[previousMessages.length - 1].text = text
         previousMessages[previousMessages.length - 1].hiddenText = hiddenText

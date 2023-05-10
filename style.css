@@ -81,3 +81,8 @@ body {
     color: purple;
     background-color: #f7f7f8;
 }
+
+.message * {
+    margin: 0 !important;
+    padding: 0 !important;
+}
