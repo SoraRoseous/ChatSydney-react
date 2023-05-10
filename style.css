@@ -42,6 +42,10 @@ body {
     background-color: #0056b3;
 }
 
+.button[disabled] {
+    background-color: gray;
+}
+
 .messages {
     border: 1px solid #ccc;
     overflow-y: auto;
