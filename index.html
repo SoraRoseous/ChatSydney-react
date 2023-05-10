@@ -175,6 +175,7 @@
                             }
                             if (message.contentOrigin === 'Apology') {
                                 alert('Message revoke detected')
+                                displaySuggestedResponses(["Continue from your last sentence", "从你的上一句话继续", "あなたの最後の文から続けてください"]);
                                 finished()
                             } else {
                                 updateMessage(message.adaptiveCards[0].body[0].text, message.text)
