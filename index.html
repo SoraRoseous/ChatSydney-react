@@ -37,16 +37,17 @@
     const renderer = {
         del(text) {
             return `~${text}~`
+        },
+        code(text, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            const escapedCode = hljs.highlight(text, {language}).value;
+            return `
+            <button class="copy-button" onclick="copyCode(this)">Copy code</button>
+            <pre><code>${escapedCode}</code></pre>
+        `;
         }
     }
     marked.use({breaks: true, renderer})
-    marked.use(markedHighlight.markedHighlight({
-        langPrefix: 'hljs language-',
-        highlight(code, lang) {
-            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-            return hljs.highlight(code, {language}).value;
-        }
-    }));
     const messages = document.getElementById('messages')
     const userInput = document.getElementById('userInput')
     const sendBtn = document.getElementById('sendBtn')
@@ -54,6 +55,12 @@
     const previousMessages = []
     let enterMode = "enter"
     let _responding = false
+
+    function copyCode(self) {
+        navigator.clipboard.writeText(self.nextElementSibling.innerText)
+        self.textContent = "Copied!"
+        setTimeout(() => self.textContent = "Copy code", 3000)
+    }
 
     function displaySuggestedResponses(suggestedResponses) {
         const container = document.getElementById('suggestedResponsesContainer');
