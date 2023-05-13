@@ -30,7 +30,6 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css">
 <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
 <script>
@@ -47,7 +46,7 @@
         `;
         }
     }
-    marked.use({breaks: true, renderer})
+    marked.use({breaks: true, renderer, mangle: false, headerIds: false})
     const messages = document.getElementById('messages')
     const userInput = document.getElementById('userInput')
     const sendBtn = document.getElementById('sendBtn')
