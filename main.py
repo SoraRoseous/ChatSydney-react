@@ -19,15 +19,17 @@ async def handle_client(websocket):
 
 
 async def process_message(user_message, context):
-    chatbot = await Chatbot.create(cookie_path="cookies.json")
+    chatbot = None
     try:
+        chatbot = await Chatbot.create(cookie_path="cookies.json")
         async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                     webpage_context=context, search_result=True):
             yield response
     except Exception as e:
         yield {"type": "error", "error": str(e)}
     finally:
-        await chatbot.close()
+        if chatbot:
+            await chatbot.close()
 
 
 async def http_handler(request):
