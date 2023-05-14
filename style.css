@@ -2,17 +2,17 @@ body {
     font-family: "Microsoft YaHei", sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0;
+    background-image: url("background.png");
+    background-size: cover;
 }
 
 .container {
     display: flex;
     flex-direction: column;
     margin: auto;
-    max-width: 800px;
+    max-width: 1184px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    background-color: white;
     border-radius: 10px;
 }
 
@@ -47,6 +47,8 @@ body {
 }
 
 .messages {
+    display: flex;
+    flex-direction: column;
     border: 1px solid #ccc;
     overflow-y: auto;
     padding: 10px;
@@ -70,19 +72,28 @@ body {
 .message {
     margin-bottom: 10px;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 12px;
+    box-shadow: 0 0.3px 0.9px rgba(0, 0, 0, 0.12), 0 1.6px 3.6px rgba(0, 0, 0, 0.16);
+    font-size: 16px;
+    width: fit-content;
+    max-width: 768px;
 }
 
 .user-message {
-    color: blue;
+    color: white;
+    background-image: linear-gradient(90deg, #904887 10.79%, #8B257E 87.08%);
+    align-self: flex-end;
 }
 
 .assistant-message {
-    color: purple;
-    background-color: #f7f7f8;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.other-message {
+    background-color: rgba(255, 255, 255, 0.3);
+    align-self: flex-end;
 }
 
 .message * {
-    margin: 0 !important;
-    padding: 0 !important;
+    margin-block: 0;
 }
