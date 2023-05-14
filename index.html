@@ -16,6 +16,7 @@
     import React from 'https://cdn.skypack.dev/react?min'
     import ReactDOM from 'https://cdn.skypack.dev/react-dom?min'
     import ReactMarkdown from 'https://cdn.skypack.dev/react-markdown?min'
+    import remarkBreaks from 'https://cdn.skypack.dev/remark-breaks?min'
     import SyntaxHighlighter from 'https://esm.sh/react-syntax-highlighter@15.5.0?bundle'
 
     const defaultMessages = [{
@@ -92,7 +93,11 @@
             }
         }, [fileContent]);
         React.useEffect(() => {
-            window.scrollTo(0, document.body.scrollHeight);
+            const scrollThreshold = 100;
+            const isUserAtBottom = Math.abs(window.innerHeight + document.documentElement.scrollTop - document.documentElement.scrollHeight) < scrollThreshold;
+            if (isUserAtBottom) {
+                window.scrollTo(0, document.body.scrollHeight);
+            }
             localStorage.setItem('chatHistory', JSON.stringify(previousMessages))
             renderMathInElement(document.body, {output: 'mathml'})
         }, [previousMessages])
@@ -248,8 +253,30 @@
                     </div>
                     <div className="messages" id="messages">
                         {previousMessages.map((msg, index) => (
-                            <div key={index} className={`message ${messageClass(msg.tag)}`}>
-                                <ReactMarkdown components={{
+                            <div
+                                key={index}
+                                className={`message ${messageClass(msg.tag)}`}
+                                onMouseOver={event => {
+                                    if (!responding)
+                                        event.currentTarget.querySelector('.delete-button').style.display = 'block';
+                                }}
+                                onMouseOut={event => event.currentTarget.querySelector('.delete-button').style.display = 'none'}
+                            >
+                                <button
+                                    className="delete-button"
+                                    style={{display: 'none'}}
+                                    onClick={() => {
+                                        let updatedMessages = [...previousMessages];
+                                        updatedMessages.splice(index, 1);
+                                        setPreviousMessages(updatedMessages);
+                                    }}
+                                    disabled={responding}
+                                >
+                                    ❌
+                                </button>
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkBreaks]}
+                                    components={{
                                     code: ({language, children}) =>
                                         <>
                                             <button onClick={e => copyCode(e.target)}>Copy code</button>
