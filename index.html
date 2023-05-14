@@ -141,7 +141,7 @@
 
             websocket.send(JSON.stringify({
                 message: userInput,
-                context: formatPreviousMessages(previousMessages.slice(0, -1))
+                context: formatPreviousMessages(previousMessages)
             }))
 
             return new Promise((resolve, reject) => {
