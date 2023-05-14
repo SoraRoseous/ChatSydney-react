@@ -246,10 +246,10 @@
                         {previousMessages.map((msg, index) => (
                             <div key={index} className={`message ${messageClass(msg.tag)}`}>
                                 <ReactMarkdown components={{
-                                    code: ({children}) =>
+                                    code: ({language, children}) =>
                                         <>
                                             <button onClick={e => copyCode(e.target)}>Copy code</button>
-                                            <SyntaxHighlighter>
+                                            <SyntaxHighlighter language={language}>
                                                 {children}
                                             </SyntaxHighlighter>
                                         </>
