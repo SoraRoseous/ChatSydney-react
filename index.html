@@ -104,7 +104,6 @@
         const [userInput, setUserInput] = React.useState('');
         const [enterMode, setEnterMode] = React.useState('enter');
         const [responding, setResponding] = React.useState(false)
-        const [revoked, setRevoked] = React.useState(false)
         const appendMessage = message => {
             setPreviousMessages(prevMessages => [...prevMessages, message])
         }
@@ -125,7 +124,6 @@
             setResponding(true)
             appendMessage({tag: "[user](#message)", text: inputText})
             setUserInput('')
-            setRevoked(false)
             try {
                 await streamOutput(inputText)
             } catch (error) {
@@ -180,8 +178,8 @@
                                         hiddenText: message.text
                                     })
                                 } else if (message.contentOrigin === 'Apology') {
-                                    setRevoked(true)
                                     alert('Message revoke detected')
+                                    updateMessage({revoked: true})
                                     finished()
                                 } else {
                                     updateMessage({
@@ -193,7 +191,10 @@
                                 break
                         }
                     } else if (response.type === 2) {
-                        finished()
+                        if (response.item.messages[response.item.messages.length() - 1].text)
+                            finished()
+                        else
+                            reject("Looks like the user message has triggered the Bing filter")
                     } else if (response.type === "error") {
                         reject(response.error)
                     }
@@ -294,7 +295,8 @@
                 <div className="user-input">
                     <h3 className="heading">User Input:</h3>
                     <div id="suggestedResponsesContainer">
-                        {(revoked ? ["Continue from your last sentence", "从你的上一句话继续", "あなたの最後の文から続けてください"] :
+                        {(previousMessages[previousMessages.length - 1].revoked ?
+                            ["Continue from your last sentence", "从你的上一句话继续", "あなたの最後の文から続けてください"] :
                             previousMessages[previousMessages.length - 1].suggestions)?.map(suggestion =>
                             <button onClick={() => setUserInput(suggestion)}>{suggestion}</button>)
                         }
