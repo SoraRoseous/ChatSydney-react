@@ -9,6 +9,9 @@
 <body>
 <div id="root"></div>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script crossorigin="anonymous" defer src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js"></script>
+<script crossorigin="anonymous" defer onload="renderMathInElement(document.body, {output: 'mathml'})"
+        src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/auto-render.min.js"></script>
 <script data-type="module" type="text/babel">
     import React from 'https://esm.sh/react';
     import ReactDOM from 'https://esm.sh/react-dom';
@@ -91,6 +94,7 @@
         React.useEffect(() => {
             window.scrollTo(0, document.body.scrollHeight);
             localStorage.setItem('chatHistory', JSON.stringify(previousMessages))
+            renderMathInElement(document.body, {output: 'mathml'})
         }, [previousMessages])
         const [userInput, setUserInput] = React.useState('');
         const [enterMode, setEnterMode] = React.useState('enter');
