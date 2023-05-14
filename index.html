@@ -191,7 +191,7 @@
                                 break
                         }
                     } else if (response.type === 2) {
-                        if (response.item.messages[response.item.messages.length() - 1].text)
+                        if (response.item.messages[response.item.messages.length - 1].text)
                             finished()
                         else
                             reject("Looks like the user message has triggered the Bing filter")
