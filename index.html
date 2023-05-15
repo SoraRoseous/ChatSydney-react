@@ -30,7 +30,7 @@
     // WebSocket related functions
     async function connectWebSocket() {
         return new Promise((resolve, reject) => {
-            websocket = new WebSocket(`ws://${window.location.hostname}:54321`)
+            websocket = new WebSocket(`ws://${window.location.host}/ws/`)
 
             websocket.onopen = () => {
                 resolve()
@@ -187,6 +187,7 @@
                                         hiddenText: message.text,
                                         suggestions: message.suggestedResponses?.map(res => res.text)
                                     })
+                                    if (message.suggestedResponses) finished()
                                 }
                                 break
                         }

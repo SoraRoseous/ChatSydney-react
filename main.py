@@ -1,21 +1,10 @@
+import argparse
 import asyncio
 import json
 
-import websockets
-from EdgeGPT import Chatbot
 from aiohttp import web
 
-
-async def handle_client(websocket):
-    try:
-        async for message in websocket:
-            request = json.loads(message)
-            user_message = request['message']
-            context = request['context']
-            async for response in process_message(user_message, context):
-                await websocket.send(json.dumps(response))
-    except websockets.ConnectionClosedError:
-        pass
+from EdgeGPT import Chatbot
 
 
 async def process_message(user_message, context):
@@ -39,24 +28,44 @@ async def http_handler(request):
     return web.FileResponse('.' + file_path)
 
 
-async def main():
+async def websocket_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    async for msg in ws:
+        if msg.type == web.WSMsgType.TEXT:
+            request = json.loads(msg.data)
+            user_message = request['message']
+            context = request['context']
+            async for response in process_message(user_message, context):
+                await ws.send_json(response)
+
+    return ws
+
+
+async def main(host, port):
     app = web.Application()
+    app.router.add_get('/ws/', websocket_handler)
     app.router.add_get('/{tail:.*}', http_handler)
 
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, 'localhost', 65432)
+    site = web.TCPSite(runner, host, port)
     await site.start()
-    print("Go to http://localhost:65432 to start chatting!")
-
-    start_server = websockets.serve(handle_client, 'localhost', 54321)
-    await start_server
+    print(f"Go to http://{host}:{port} to start chatting!")
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", "-H", help="host:port for the server", default="localhost:65432")
+    args = parser.parse_args()
+
+    host, port = args.host.split(":")
+    port = int(port)
+
     loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(main())
+        loop.run_until_complete(main(host, port))
         loop.run_forever()
     except KeyboardInterrupt:
         pass
