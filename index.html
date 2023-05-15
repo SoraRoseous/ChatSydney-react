@@ -17,6 +17,7 @@
     import ReactDOM from 'https://cdn.skypack.dev/react-dom?min'
     import ReactMarkdown from 'https://cdn.skypack.dev/react-markdown?min'
     import remarkBreaks from 'https://cdn.skypack.dev/remark-breaks?min'
+    import remarkGfm from 'https://cdn.skypack.dev/remark-gfm?min';
     import SyntaxHighlighter from 'https://esm.sh/react-syntax-highlighter@15.5.0?bundle'
 
     const defaultMessages = [{
@@ -277,7 +278,7 @@
                                     ❌
                                 </button>
                                 <ReactMarkdown
-                                    remarkPlugins={[remarkBreaks]}
+                                    remarkPlugins={[remarkBreaks, remarkGfm]}
                                     components={{
                                     code: ({language, children}) =>
                                         <>
