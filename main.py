@@ -10,7 +10,7 @@ from EdgeGPT import Chatbot
 async def process_message(user_message, context):
     chatbot = None
     try:
-        chatbot = await Chatbot.create(cookie_path="cookies.json")
+        chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=args.proxy)
         async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                     webpage_context=context, search_result=True):
             yield response
@@ -58,6 +58,7 @@ async def main(host, port):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", "-H", help="host:port for the server", default="localhost:65432")
+    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default="")
     args = parser.parse_args()
 
     host, port = args.host.split(":")
