@@ -344,6 +344,12 @@
             }
         }
 
+        const addMessage = index => {
+            let updatedMessages = [...previousMessages]
+            updatedMessages.splice(index, 0, updatedMessages[index])
+            setPreviousMessages(updatedMessages)
+        }
+
         const editMessage = index => {
             setEditingMessageIndex(index)
             setIsEditDialogOpen(true)
@@ -397,15 +403,25 @@
                                 className={`message ${messageClass(msg.tag)}`}
                                 onMouseOver={event => {
                                     if (!responding) {
+                                        event.currentTarget.querySelector('.add-button').style.display = 'block'
                                         event.currentTarget.querySelector('.edit-button').style.display = 'block'
                                         event.currentTarget.querySelector('.delete-button').style.display = 'block'
                                     }
                                 }}
                                 onMouseOut={event => {
-                                    event.currentTarget.querySelector('.delete-button').style.display = 'none'
+                                    event.currentTarget.querySelector('.add-button').style.display = 'none'
                                     event.currentTarget.querySelector('.edit-button').style.display = 'none'
+                                    event.currentTarget.querySelector('.delete-button').style.display = 'none'
                                 }}
                             >
+                                <button
+                                    className="add-button"
+                                    style={{display: 'none'}}
+                                    onClick={() => addMessage(index)}
+                                    disabled={responding}
+                                >
+                                    ➕
+                                </button>
                                 <button
                                     className="edit-button"
                                     style={{display: 'none'}}

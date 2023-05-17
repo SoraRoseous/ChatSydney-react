@@ -99,7 +99,7 @@ body {
     margin-block: 0;
 }
 
-.delete-button, .edit-button {
+.add-button, .delete-button, .edit-button {
     box-shadow: 0 0.3px 0.9px rgba(0, 0, 0, 0.12), 0 1.6px 3.6px rgba(0, 0, 0, 0.16);
     position: absolute;
     top: -36px;
@@ -122,6 +122,10 @@ body {
     right: 36px;
 }
 
-.delete-button:hover, .edit-button:hover {
+.add-button {
+    right: 72px;
+}
+
+.add-button:hover, .delete-button:hover, .edit-button:hover {
     background-color: rgb(255, 255, 255, 0.06);
 }
