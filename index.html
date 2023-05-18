@@ -293,7 +293,7 @@
                                     appendMessage({
                                         tag: '[assistant](#message)',
                                         text: message.adaptiveCards[0].body[0].text,
-                                        hiddenText: message.text
+                                        hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
                                     })
                                 } else if (message.contentOrigin === 'Apology') {
                                     alert('Message revoke detected')
@@ -302,7 +302,7 @@
                                 } else {
                                     updateMessage({
                                         text: message.adaptiveCards[0].body[0].text,
-                                        hiddenText: message.text,
+                                        hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
                                         suggestions: message.suggestedResponses?.map(res => res.text)
                                     })
                                     if (message.suggestedResponses) finished()
