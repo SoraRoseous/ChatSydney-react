@@ -19,7 +19,10 @@
     import ReactMarkdown from 'https://cdn.skypack.dev/react-markdown?min'
     import remarkBreaks from 'https://cdn.skypack.dev/remark-breaks?min'
     import remarkGfm from 'https://cdn.skypack.dev/remark-gfm?min'
+    import * as Tiktoken from 'https://cdn.skypack.dev/js-tiktoken?min'
     import SyntaxHighlighter from 'https://esm.sh/react-syntax-highlighter@15.5.0?bundle'
+
+    const enc = Tiktoken.encodingForModel("gpt-4");
 
     const EditDialog = ({isOpen, handleClose, handleSubmit, initialData}) => {
         const [data, setData] = React.useState(initialData || {})
@@ -203,6 +206,7 @@
             fileInput.current.value = ''
         }
         const [previousMessages, setPreviousMessages] = React.useState(savedMessages ?? defaultMessages)
+        const [contextTokens, setContextTokens] = React.useState(0)
         React.useEffect(() => {
             if (fileContent) {
                 setPreviousMessages(JSON.parse(fileContent))
@@ -216,8 +220,13 @@
             }
             localStorage.setItem('chatHistory', JSON.stringify(previousMessages))
             renderMathInElement(document.body, {output: 'mathml'})
+            setContextTokens(enc.encode(formatPreviousMessages(previousMessages)).length)
         }, [previousMessages])
         const [userInput, setUserInput] = React.useState('')
+        const [userInputTokens, setUserInputTokens] = React.useState(0)
+        React.useEffect(() => {
+            setUserInputTokens(enc.encode(userInput).length)
+        }, [userInput])
         const [enterMode, setEnterMode] = React.useState('enter')
         const [responding, setResponding] = React.useState(false)
         const [editingMessageIndex, setEditingMessageIndex] = React.useState(null)
@@ -490,6 +499,7 @@
                         <option value="enter">Press Enter to send</option>
                         <option value="ctrl-enter">Press Ctrl+Enter to send</option>
                     </select>
+                    <span>Context: {contextTokens} tokens, User Input: {userInputTokens} tokens</span>
                 </div>
                 <EditDialog
                     isOpen={isEditDialogOpen}
