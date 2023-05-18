@@ -25,7 +25,9 @@ async def http_handler(request):
     file_path = request.path
     if file_path == "/":
         file_path = "/index.html"
-    return web.FileResponse('.' + file_path)
+    response = web.FileResponse('.' + file_path)
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 
 async def websocket_handler(request):
