@@ -1,2 +1,2 @@
 aiohttp
-EdgeGPT==0.4.2
+EdgeGPT
