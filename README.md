@@ -8,9 +8,12 @@ First, you need to have Python 3.11 or higher installed. Then, you can install t
 pip install -r requirements.txt --upgrade
 ```
 
+## How to get cookies.json
+same as EdgeGPT https://github.com/acheong08/EdgeGPT#getting-authentication-required
+
 ## Usage
 
-You can run this project using the Python command line:
+After saving `cookies.json` in current directory, you can run this project using the Python command line:
 
 ```bash
 python main.py

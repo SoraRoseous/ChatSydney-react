@@ -10,7 +10,7 @@ from EdgeGPT import Chatbot
 async def process_message(user_message, context):
     chatbot = None
     try:
-        chatbot = await Chatbot.create(proxy=args.proxy)
+        chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=args.proxy)
         async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                     webpage_context=context, search_result=True):
             yield response
