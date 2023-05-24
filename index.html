@@ -451,11 +451,27 @@
             })
         }
 
+        const clearSuggestions = () => {
+            setPreviousMessages(previousMessages => {
+                let updatedMessages = [...previousMessages]
+                for (const msg of updatedMessages) {
+                    msg.suggestions = undefined
+                }
+                return updatedMessages
+            })
+        }
+
         return (
             <div className="container">
                 <div className="chat-history">
                     <h3 className="heading">Chat History:</h3>
                     <div className="button-container">
+                        <button
+                            className="button"
+                            disabled={responding}
+                            onClick={() => clearSuggestions()}>
+                            Clear Suggestions
+                        </button>
                         <button
                             className="button"
                             disabled={responding}
