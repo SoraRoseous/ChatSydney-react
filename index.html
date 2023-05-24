@@ -260,6 +260,14 @@
     }
 
     function App() {
+        const previousMessagesKeys = Object.keys(localStorage).filter(key => key.startsWith('chatHistory')).map(key => key.replace('chatHistory', ''))
+
+        const [selectedKey, setSelectedKey] = React.useState(previousMessagesKeys[0] || 'default');
+        React.useEffect(() => {
+            const savedMessages = JSON.parse(localStorage.getItem("chatHistory" + selectedKey));
+            setPreviousMessages(savedMessages ?? defaultMessages);
+        }, [selectedKey])
+
         const [fileContent, setFileContent] = React.useState(null)
         const fileInput = React.useRef(null)
         const [acceptSuggestions, setAcceptSuggestions] = React.useState(true)
@@ -287,7 +295,7 @@
             if (isUserAtBottom) {
                 window.scrollTo(0, document.body.scrollHeight)
             }
-            localStorage.setItem('chatHistory', JSON.stringify(previousMessages))
+            localStorage.setItem('chatHistory' + selectedKey, JSON.stringify(previousMessages))
             renderMathInElement(document.body, {output: 'mathml'})
             setContextTokens(enc.encode(formatPreviousMessages(previousMessages)).length)
         }, [previousMessages])
@@ -461,11 +469,50 @@
             })
         }
 
+        const addKey = () => {
+            const newKey = prompt('Enter a new key:');
+            if (newKey) {
+                localStorage.setItem("chatHistory" + newKey, JSON.stringify(defaultMessages));
+                setSelectedKey(newKey);
+            }
+        }
+
+        const renameKey = () => {
+            if (selectedKey) {
+                const renamedKey = prompt('Enter a new name for the key:', selectedKey);
+                if (renamedKey) {
+                    const savedMessages = localStorage.getItem("chatHistory" + selectedKey);
+                    localStorage.removeItem("chatHistory" + selectedKey);
+                    localStorage.setItem("chatHistory" + renamedKey, savedMessages);
+                    setSelectedKey(renamedKey);
+                }
+            }
+        }
+
+        const deleteKey = () => {
+            if (selectedKey) {
+                localStorage.removeItem("chatHistory" + selectedKey);
+                const remainingKeys = Object.keys(localStorage).filter(key => key.startsWith('chatHistory')).map(key => key.replace('chatHistory', ''));
+                setSelectedKey(remainingKeys[0] || '');
+            }
+        }
+
         return (
             <div className="container">
                 <div className="chat-history">
                     <h3 className="heading">Chat History:</h3>
                     <div className="button-container">
+                        <button className="button" onClick={addKey}>Add</button>
+                        <button className="button" onClick={renameKey}>Rename</button>
+                        <button className="button" onClick={deleteKey}>Delete</button>
+                        <select
+                            value={selectedKey}
+                            onChange={event => setSelectedKey(event.target.value)}
+                        >
+                            {previousMessagesKeys.map(key => (
+                                <option value={key}>{key}</option>
+                            ))}
+                        </select>
                         <button
                             className="button"
                             disabled={responding}
