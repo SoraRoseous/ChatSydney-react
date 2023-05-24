@@ -24,6 +24,74 @@
 
     const enc = Tiktoken.encodingForModel("gpt-4");
 
+    function messageClass(tag) {
+        if (tag.startsWith('[user]')) {
+            return "user-message"
+        } else if (tag.startsWith('[assistant]')) {
+            return "assistant-message"
+        } else {
+            return "other-message"
+        }
+    }
+
+    const Message = React.memo(({msg, index, responding, addMessage, editMessage, deleteMessage}) => (
+        <div
+            className={`message ${messageClass(msg.tag)}`}
+            onMouseOver={event => {
+                if (!responding) {
+                    event.currentTarget.querySelector('.add-button').style.display = 'block'
+                    event.currentTarget.querySelector('.edit-button').style.display = 'block'
+                    event.currentTarget.querySelector('.delete-button').style.display = 'block'
+                }
+            }}
+            onMouseOut={event => {
+                event.currentTarget.querySelector('.add-button').style.display = 'none'
+                event.currentTarget.querySelector('.edit-button').style.display = 'none'
+                event.currentTarget.querySelector('.delete-button').style.display = 'none'
+            }}
+        >
+            <button
+                className="add-button"
+                style={{display: 'none'}}
+                onClick={() => addMessage(index)}
+                disabled={responding}
+            >
+                ➕
+            </button>
+            <button
+                className="edit-button"
+                style={{display: 'none'}}
+                onClick={() => editMessage(index)}
+                disabled={responding}
+            >
+                ✏️
+            </button>
+            <button
+                className="delete-button"
+                style={{display: 'none'}}
+                onClick={() => deleteMessage(index)}
+                disabled={responding}
+            >
+                ❌
+            </button>
+            <ReactMarkdown
+                linkTarget="_blank"
+                remarkPlugins={[remarkBreaks, remarkGfm]}
+                components={{
+                    code: ({language, children, inline}) =>
+                        inline ? children :
+                            <>
+                                <button onClick={e => copyCode(e.target)}>Copy code</button>
+                                <SyntaxHighlighter language={language}>
+                                    {children}
+                                </SyntaxHighlighter>
+                            </>
+                }}>
+                {msg.text}
+            </ReactMarkdown>
+        </div>
+    ));
+
     const EditDialog = ({isOpen, handleClose, handleSubmit, initialData}) => {
         const [data, setData] = React.useState(initialData || {})
         const [error, setError] = React.useState(null)
@@ -345,26 +413,24 @@
             }
         }
 
-        function messageClass(tag) {
-            if (tag.startsWith('[user]')) {
-                return "user-message"
-            } else if (tag.startsWith('[assistant]')) {
-                return "assistant-message"
-            } else {
-                return "other-message"
-            }
-        }
-
-        const addMessage = index => {
+        const addMessage = React.useCallback(index => {
             let updatedMessages = [...previousMessages]
             updatedMessages.splice(index, 0, updatedMessages[index])
             setPreviousMessages(updatedMessages)
-        }
+        }, [])
 
-        const editMessage = index => {
+        const editMessage = React.useCallback(index => {
             setEditingMessageIndex(index)
             setIsEditDialogOpen(true)
-        }
+        }, [])
+
+        const deleteMessage = React.useCallback(index => {
+            setPreviousMessages(prevMessages => {
+                const updatedMessages = [...prevMessages]
+                updatedMessages.splice(index, 1)
+                return updatedMessages
+            })
+        }, [])
 
         const handleEditDialogClose = () => {
             setEditingMessageIndex(null)
@@ -408,68 +474,17 @@
                         </button>
                     </div>
                     <div className="messages" id="messages">
-                        {previousMessages.map((msg, index) => (
-                            <div
-                                key={index}
-                                className={`message ${messageClass(msg.tag)}`}
-                                onMouseOver={event => {
-                                    if (!responding) {
-                                        event.currentTarget.querySelector('.add-button').style.display = 'block'
-                                        event.currentTarget.querySelector('.edit-button').style.display = 'block'
-                                        event.currentTarget.querySelector('.delete-button').style.display = 'block'
-                                    }
-                                }}
-                                onMouseOut={event => {
-                                    event.currentTarget.querySelector('.add-button').style.display = 'none'
-                                    event.currentTarget.querySelector('.edit-button').style.display = 'none'
-                                    event.currentTarget.querySelector('.delete-button').style.display = 'none'
-                                }}
-                            >
-                                <button
-                                    className="add-button"
-                                    style={{display: 'none'}}
-                                    onClick={() => addMessage(index)}
-                                    disabled={responding}
-                                >
-                                    ➕
-                                </button>
-                                <button
-                                    className="edit-button"
-                                    style={{display: 'none'}}
-                                    onClick={() => editMessage(index)}
-                                    disabled={responding}
-                                >
-                                    ✏️
-                                </button>
-                                <button
-                                    className="delete-button"
-                                    style={{display: 'none'}}
-                                    onClick={() => {
-                                        let updatedMessages = [...previousMessages]
-                                        updatedMessages.splice(index, 1)
-                                        setPreviousMessages(updatedMessages)
-                                    }}
-                                    disabled={responding}
-                                >
-                                    ❌
-                                </button>
-                                <ReactMarkdown
-                                    linkTarget="_blank"
-                                    remarkPlugins={[remarkBreaks, remarkGfm]}
-                                    components={{
-                                        code: ({language, children, inline}) =>
-                                            inline ? children :
-                                                <>
-                                                    <button onClick={e => copyCode(e.target)}>Copy code</button>
-                                                    <SyntaxHighlighter language={language}>
-                                                        {children}
-                                                    </SyntaxHighlighter>
-                                                </>
-                                    }}>
-                                    {msg.text}
-                                </ReactMarkdown>
-                            </div>
-                        ))}
+                        {previousMessages.map((msg, index) =>
+                            <Message
+                                key={msg}
+                                msg={msg}
+                                index={index}
+                                responding={responding}
+                                addMessage={addMessage}
+                                editMessage={editMessage}
+                                deleteMessage={deleteMessage}
+                            />
+                        )}
                     </div>
                 </div>
                 <div className="user-input">
