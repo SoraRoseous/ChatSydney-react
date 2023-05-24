@@ -509,8 +509,9 @@
                     </div>
                 </div>
                 <div className="user-input">
-                    <label for="suggestion-switch">Show Suggestions</label>
-					<input type="checkbox" id="suggestion-switch" checked={acceptSuggestions} onChange={event => setAcceptSuggestions(event.target.checked)}/>
+                    <label htmlFor="suggestion-switch">Accept Suggestions</label>
+                    <input type="checkbox" id="suggestion-switch" checked={acceptSuggestions}
+                           onChange={event => setAcceptSuggestions(event.target.checked)}/>
                     <h3 className="heading">User Input:</h3>
                     <div id="suggestedResponsesContainer">
                         {(previousMessages[previousMessages.length - 1].revoked ?
