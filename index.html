@@ -504,7 +504,7 @@
                         onChange={event => setUserInput(event.target.value)}
                         onKeyDown={handleUserInputKeyDown}
                     />
-                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                    <div style={{display: "flex", justifyContent: "space-between", flexWrap: "wrap"}}>
                         <button id="sendBtn" className="button" onClick={sendMessage} disabled={responding}>
                             Send
                         </button>
@@ -517,9 +517,10 @@
                             <option value="enter">Press Enter to send</option>
                             <option value="ctrl-enter">Press Ctrl+Enter to send</option>
                         </select>
-                        <span>Context: {contextTokens} tokens, User Input: {userInputTokens} tokens</span>
-                        <span>_U override: <input onChange={event => set_UOverride(event.target.value)}
-                                                  value={_UOverride}/></span>
+                        <div>Context: {contextTokens} tokens, User Input: {userInputTokens} tokens</div>
+                        <label>_U override:&nbsp;
+                            <input onChange={event => set_UOverride(event.target.value)} value={_UOverride}/>
+                        </label>
                     </div>
                 </div>
                 <EditDialog
