@@ -262,6 +262,7 @@
     function App() {
         const [fileContent, setFileContent] = React.useState(null)
         const fileInput = React.useRef(null)
+        const [acceptSuggestions, setAcceptSuggestions] = React.useState(true)
         const handleFileChange = event => {
             const file = event.target.files[0]
             if (file) {
@@ -382,7 +383,7 @@
                                     updateMessage({
                                         text: message.adaptiveCards[0].body[0].text,
                                         hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
-                                        suggestions: message.suggestedResponses?.map(res => res.text)
+                                        suggestions: acceptSuggestions ? message.suggestedResponses?.map(res => res.text) : []
                                     })
                                     if (message.suggestedResponses) finished()
                                 }
@@ -492,6 +493,8 @@
                     </div>
                 </div>
                 <div className="user-input">
+                    <label for="suggestion-switch">Show Suggestions</label>
+					<input type="checkbox" id="suggestion-switch" checked={acceptSuggestions} onChange={event => setAcceptSuggestions(event.target.checked)}/>
                     <h3 className="heading">User Input:</h3>
                     <div id="suggestedResponsesContainer">
                         {(previousMessages[previousMessages.length - 1].revoked ?
