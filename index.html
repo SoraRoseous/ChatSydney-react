@@ -231,6 +231,7 @@
         const [responding, setResponding] = React.useState(false)
         const [editingMessageIndex, setEditingMessageIndex] = React.useState(null)
         const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false)
+        const [_UOverride, set_UOverride] = React.useState("")
         const appendMessage = message => {
             setPreviousMessages(prevMessages => [...prevMessages, message])
         }
@@ -271,7 +272,8 @@
 
             websocket.send(JSON.stringify({
                 message: userInput,
-                context: formatPreviousMessages(previousMessages)
+                context: formatPreviousMessages(previousMessages),
+                _U: _UOverride,
             }))
 
             return new Promise((resolve, reject) => {
@@ -487,19 +489,23 @@
                         onChange={event => setUserInput(event.target.value)}
                         onKeyDown={handleUserInputKeyDown}
                     />
-                    <button id="sendBtn" className="button" onClick={sendMessage} disabled={responding}>
-                        Send
-                    </button>
-                    <select
-                        id="send-mode-selector"
-                        className="selector"
-                        value={enterMode}
-                        onChange={event => setEnterMode(event.target.value)}
-                    >
-                        <option value="enter">Press Enter to send</option>
-                        <option value="ctrl-enter">Press Ctrl+Enter to send</option>
-                    </select>
-                    <span>Context: {contextTokens} tokens, User Input: {userInputTokens} tokens</span>
+                    <div style={{display: "flex", justifyContent: "space-between"}}>
+                        <button id="sendBtn" className="button" onClick={sendMessage} disabled={responding}>
+                            Send
+                        </button>
+                        <select
+                            id="send-mode-selector"
+                            className="selector"
+                            value={enterMode}
+                            onChange={event => setEnterMode(event.target.value)}
+                        >
+                            <option value="enter">Press Enter to send</option>
+                            <option value="ctrl-enter">Press Ctrl+Enter to send</option>
+                        </select>
+                        <span>Context: {contextTokens} tokens, User Input: {userInputTokens} tokens</span>
+                        <span>_U override: <input onChange={event => set_UOverride(event.target.value)}
+                                                  value={_UOverride}/></span>
+                    </div>
                 </div>
                 <EditDialog
                     isOpen={isEditDialogOpen}

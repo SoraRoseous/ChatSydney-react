@@ -1,16 +1,20 @@
 import argparse
 import asyncio
 import json
-
-from aiohttp import web
+import os
 
 from EdgeGPT import Chatbot
+from aiohttp import web
 
 
-async def process_message(user_message, context):
+async def process_message(user_message, context, _U):
     chatbot = None
     try:
-        chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=args.proxy)
+        if _U:
+            cookies = loaded_cookies + [{"name": "_U", "value": _U}]
+        else:
+            cookies = loaded_cookies
+        chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy)
         async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                     webpage_context=context, search_result=True):
             yield response
@@ -39,7 +43,8 @@ async def websocket_handler(request):
             request = json.loads(msg.data)
             user_message = request['message']
             context = request['context']
-            async for response in process_message(user_message, context):
+            _U = request.get('_U')
+            async for response in process_message(user_message, context, _U):
                 await ws.send_json(response)
 
     return ws
@@ -65,6 +70,14 @@ if __name__ == '__main__':
 
     host, port = args.host.split(":")
     port = int(port)
+
+    if os.path.isfile("cookies.json"):
+        with open("cookies.json", 'r') as f:
+            loaded_cookies = json.load(f)
+        print("Loaded cookies.json")
+    else:
+        loaded_cookies = []
+        print("cookies.json not found")
 
     loop = asyncio.get_event_loop()
     try:
