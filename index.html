@@ -414,9 +414,11 @@
         }
 
         const addMessage = React.useCallback(index => {
-            let updatedMessages = [...previousMessages]
-            updatedMessages.splice(index, 0, updatedMessages[index])
-            setPreviousMessages(updatedMessages)
+            setPreviousMessages(prevMessages => {
+                let updatedMessages = [...prevMessages]
+                updatedMessages.splice(index, 0, updatedMessages[index])
+                return updatedMessages
+            })
         }, [])
 
         const editMessage = React.useCallback(index => {
@@ -438,12 +440,14 @@
         }
 
         const handleEditDialogSubmit = updatedMessage => {
-            let updatedMessages = [...previousMessages]
-            updatedMessages[editingMessageIndex] = {
-                ...updatedMessages[editingMessageIndex],
-                ...updatedMessage
-            }
-            setPreviousMessages(updatedMessages)
+            setPreviousMessages(previousMessages => {
+                let updatedMessages = [...previousMessages]
+                updatedMessages[editingMessageIndex] = {
+                    ...updatedMessages[editingMessageIndex],
+                    ...updatedMessage
+                }
+                return updatedMessages
+            })
         }
 
         return (
