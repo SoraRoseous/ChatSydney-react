@@ -513,10 +513,11 @@
                 <div className="chat-history">
                     <h3 className="heading">Chat History:</h3>
                     <div className="button-container">
-                        <button className="button" onClick={addKey}>Add</button>
-                        <button className="button" onClick={renameKey}>Rename</button>
-                        <button className="button" onClick={deleteKey}>Delete</button>
+                        <button disabled={responding} className="button" onClick={addKey}>Add</button>
+                        <button disabled={responding} className="button" onClick={renameKey}>Rename</button>
+                        <button disabled={responding} className="button" onClick={deleteKey}>Delete</button>
                         <select
+                            disabled={responding}
                             value={selectedKey}
                             onChange={event => setSelectedKey(event.target.value)}
                         >
