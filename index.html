@@ -267,6 +267,7 @@
             const savedMessages = JSON.parse(localStorage.getItem("chatHistory" + selectedKey));
             setPreviousMessages(savedMessages ?? defaultMessages);
         }, [selectedKey])
+		let stopped = false;
 
         const [fileContent, setFileContent] = React.useState(null)
         const fileInput = React.useRef(null)
@@ -326,6 +327,7 @@
             if (responding) return
             const inputText = userInput.trim()
             if (inputText === '') return
+			if (stopped) await connectWebSocket();
             setResponding(true)
             appendMessage({tag: "[user](#message)", text: inputText})
             setUserInput('')
@@ -496,6 +498,15 @@
                 setSelectedKey(remainingKeys[0] || '');
             }
         }
+		
+		const stopMessage = () => { 
+            websocket.onmessage = null; 
+            setResponding(false);
+			websocket.close();
+			stopped = true;
+        };
+
+		
 
         return (
             <div className="container">
@@ -579,6 +590,7 @@
                         <button id="sendBtn" className="button" onClick={sendMessage} disabled={responding}>
                             Send
                         </button>
+						<button id="stopBtn" className="button" onClick={stopMessage}>Stop</button>
                         <select
                             id="send-mode-selector"
                             className="selector"
