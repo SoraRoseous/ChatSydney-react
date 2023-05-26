@@ -51,6 +51,7 @@
     border: 2px solid #ccc;
     border-radius: 4px;
     resize: vertical;
+    font-family: "Microsoft YaHei", sans-serif;
 }
 
 .save-button {

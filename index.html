@@ -309,7 +309,7 @@
         const [responding, setResponding] = React.useState(false)
         const [editingMessageIndex, setEditingMessageIndex] = React.useState(null)
         const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false)
-        const [_UOverride, set_UOverride] = React.useState("")
+        const [_UOverride, set_UOverride] = React.useState(localStorage.getItem('_U'))
         const appendMessage = message => {
             setPreviousMessages(prevMessages => [...prevMessages, message])
         }
@@ -500,14 +500,12 @@
         }
 		
 		const stopMessage = () => { 
-            websocket.onmessage = null; 
+            websocket.onmessage = null;
             setResponding(false);
 			websocket.close();
 			stopped = true;
         };
-
 		
-
         return (
             <div className="container">
                 <div className="chat-history">
@@ -591,7 +589,9 @@
                         <button id="sendBtn" className="button" onClick={sendMessage} disabled={responding}>
                             Send
                         </button>
-						<button id="stopBtn" className="button" onClick={stopMessage}>Stop</button>
+						<button id="stopBtn" className="button" onClick={stopMessage} disabled={!responding}>
+                            Stop
+                        </button>
                         <select
                             id="send-mode-selector"
                             className="selector"
@@ -602,8 +602,11 @@
                             <option value="ctrl-enter">Press Ctrl+Enter to send</option>
                         </select>
                         <div>Context: {contextTokens} tokens, User Input: {userInputTokens} tokens</div>
-                        <label>_U override:&nbsp;
-                            <input onChange={event => set_UOverride(event.target.value)} value={_UOverride}/>
+                        <label>_U cookie:&nbsp;
+                            <input onChange={event => {
+                                set_UOverride(event.target.value)
+                                localStorage.setItem('_U', event.target.value)
+                            }} value={_UOverride} placeholder="Enter cookie here"/>
                         </label>
                     </div>
                 </div>
