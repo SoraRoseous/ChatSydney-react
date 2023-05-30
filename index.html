@@ -400,8 +400,15 @@
                                 break
                         }
                     } else if (response.type === 2) {
-                        if (response.item.messages[response.item.messages.length - 1].text)
+                        const message = response.item.messages[response.item.messages.length - 1]
+                        if (message.text) {
+                            updateMessage({
+                                text: message.adaptiveCards[0].body[0].text,
+                                hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
+                                suggestions: acceptSuggestions ? message.suggestedResponses?.map(res => res.text) : []
+                            })
                             finished()
+                        }
                         else
                             reject("Looks like the user message has triggered the Bing filter")
                     } else if (response.type === "error") {
