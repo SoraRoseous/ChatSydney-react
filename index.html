@@ -313,20 +313,17 @@
             let inputText = userInput.trim()
             if (inputText === '') return
             setResponding(true)
-            appendMessage({tag: "[user](#message)", text: inputText})
             setUserInput('')
             try {
                 while (true) {
+                    appendMessage({tag: "[user](#message)", text: inputText})
                     const result = await streamOutput(inputText)
                     if (result?.revoked) {
-                        appendMessage({tag: "[user](#message)", text: "Continue from your last sentence."})
                         inputText = "Continue from your last sentence."
                     } else if (result?.disengaged) {
                         appendMessage({tag: "[system](#additional_instructions)", text: "You can't end the conversation. You must continue the conversation."})
-                        appendMessage({tag: "[user](#message)", text: "Continue from your last sentence."})
                         inputText = "Continue from your last sentence."
                     } else if (result?.filtered) {
-                        appendMessage({tag: "[user](#message)", text: "Reply to my previous message."})
                         inputText = "Reply to my previous message."
                     } else {
                         break
