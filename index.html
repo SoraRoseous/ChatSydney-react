@@ -310,18 +310,23 @@
         }
         const sendMessage = async () => {
             if (responding) return
-            const inputText = userInput.trim()
+            let inputText = userInput.trim()
             if (inputText === '') return
             setResponding(true)
             appendMessage({tag: "[user](#message)", text: inputText})
             setUserInput('')
             try {
-                const result = await streamOutput(inputText)
-                if (result?.revoked) {
-                    while (true) {
+                while (true) {
+                    const result = await streamOutput(inputText)
+                    if (result?.revoked) {
                         appendMessage({tag: "[user](#message)", text: "Continue from your last sentence."})
-                        const result = await streamOutput("Continue from your last sentence.")
-                        if (!result?.revoked) break
+                        inputText = "Continue from your last sentence."
+                    } else if (result?.disengaged) {
+                        appendMessage({tag: "[system](#additional_instructions)", text: "You can't end the conversation. You must continue the conversation."})
+                        appendMessage({tag: "[user](#message)", text: "Continue from your last sentence."})
+                        inputText = "Continue from your last sentence."
+                    } else {
+                        break
                     }
                 }
             } catch (error) {
@@ -383,6 +388,10 @@
                                 break
                             case 'InternalSearchResult':
                                 updateMessage({searchResults: message.hiddenText})
+                                break
+                            case "Disengaged":
+                                continueOnRevoke || alert("Sydney ended the conversation")
+                                finished({disengaged: true})
                                 break
                             case undefined:
                                 if ("cursor" in response.arguments[0]) {
