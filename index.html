@@ -347,9 +347,12 @@
 
             await connectWebSocket()
 
+            let currentPreviousMessages
+            setPreviousMessages(previousMessages => currentPreviousMessages = previousMessages)
+
             websocket.send(JSON.stringify({
                 message: userInput,
-                context: formatPreviousMessages(previousMessages),
+                context: formatPreviousMessages(currentPreviousMessages),
                 _U: _UOverride,
             }))
 
