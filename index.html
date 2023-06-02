@@ -318,6 +318,7 @@
                 while (true) {
                     appendMessage({tag: "[user](#message)", text: inputText})
                     const result = await streamOutput(inputText)
+                    if (!continueOnRevoke) break
                     if (result?.revoked) {
                         inputText = "Continue from your last sentence."
                     } else if (result?.disengaged) {
