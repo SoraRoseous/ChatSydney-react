@@ -1,2 +1,9 @@
 aiohttp
 EdgeGPT
+BingImageCreator
+certifi
+httpx
+prompt_toolkit
+requests
+rich
+aiofiles
