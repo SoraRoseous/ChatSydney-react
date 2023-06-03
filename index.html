@@ -291,6 +291,7 @@
             setUserInputTokens(enc.encode(userInput).length)
         }, [userInput])
         const [enterMode, setEnterMode] = React.useState('enter')
+        const [locale, setLocale] = React.useState('zh-CN')
         const [responding, setResponding] = React.useState(false)
         const [editingMessageIndex, setEditingMessageIndex] = React.useState(null)
         const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false)
@@ -360,6 +361,7 @@
                 message: userInput,
                 context: formatPreviousMessages(currentPreviousMessages),
                 _U: _UOverride,
+                locale: locale,
             }))
 
             return new Promise((resolve, reject) => {
@@ -625,6 +627,17 @@
                         >
                             <option value="enter">Press Enter to send</option>
                             <option value="ctrl-enter">Press Ctrl+Enter to send</option>
+                        </select>
+                        <select
+                            id="locale-selector"
+                            className="selector"
+                            value={locale}
+                            onChange={event => setLocale(event.target.value)}
+                        >
+                            <option value="zh-CN">zh-CN</option>
+                            <option value="en-US">en-US</option>
+                            <option value="en-IE">en-IE</option>
+                            <option value="en-GB">en-GB</option>
                         </select>
                         <div>Context: {contextTokens} tokens, User Input: {userInputTokens} tokens</div>
                         <label>_U cookie:&nbsp;

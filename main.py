@@ -8,7 +8,7 @@ from EdgeGPT import Chatbot
 from aiohttp import web
 
 
-async def process_message(user_message, context, _U):
+async def process_message(user_message, context, _U, locale):
     chatbot = None
     try:
         if _U:
@@ -17,7 +17,7 @@ async def process_message(user_message, context, _U):
             cookies = loaded_cookies
         chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy)
         async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
-                                                    webpage_context=context, search_result=True):
+                                                    webpage_context=context, search_result=True, locale=locale):
             yield response
     except:
         yield {"type": "error", "error": traceback.format_exc()}
@@ -44,8 +44,9 @@ async def websocket_handler(request):
             request = json.loads(msg.data)
             user_message = request['message']
             context = request['context']
+            locale = request['locale']
             _U = request.get('_U')
-            async for response in process_message(user_message, context, _U):
+            async for response in process_message(user_message, context, _U, locale=locale):
                 await ws.send_json(response)
 
     return ws
