@@ -356,6 +356,10 @@
 
             let currentPreviousMessages
             setPreviousMessages(previousMessages => currentPreviousMessages = previousMessages)
+            currentPreviousMessages = [...currentPreviousMessages, {
+                tag: "[user](#message)",
+                text: "Continue the conversation"
+            }]
 
             websocket.send(JSON.stringify({
                 message: userInput,
