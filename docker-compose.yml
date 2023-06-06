@@ -1,0 +1,10 @@
+version: "3.0"
+
+services:
+  app:
+    build: ./
+    image: redquilt/chatsydney
+    container_name: chatsydney
+    restart: unless-stopped
+    ports:
+      - "65432:65432"

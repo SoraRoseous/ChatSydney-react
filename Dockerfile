@@ -1,11 +1,11 @@
 FROM python:3.11
 
-WORKDIR ./ChatSydney
+WORKDIR /app
 
-ADD . .
-
+ADD requirements.txt requirements.txt
 RUN pip install -r requirements.txt --upgrade
 
-EXPOSE 65432
+ADD . .
+# EXPOSE 65432
 
-CMD ["python", "./main.py"]
+CMD ["python", "-m","main","-H","0.0.0.0:65432"]
