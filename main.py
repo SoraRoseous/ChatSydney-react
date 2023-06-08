@@ -7,6 +7,8 @@ import traceback
 from EdgeGPT import Chatbot
 from aiohttp import web
 
+public_dir = '/public'
+
 
 async def process_message(user_message, context, _U, locale):
     chatbot = None
@@ -30,7 +32,10 @@ async def http_handler(request):
     file_path = request.path
     if file_path == "/":
         file_path = "/index.html"
-    response = web.FileResponse('.' + file_path)
+    full_path = os.path.realpath('.' + public_dir + file_path)
+    if not full_path.startswith(os.path.realpath('.' + public_dir)):
+        raise web.HTTPForbidden()
+    response = web.FileResponse(full_path)
     response.headers['Cache-Control'] = 'no-store'
     return response
 
