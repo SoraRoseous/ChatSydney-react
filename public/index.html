@@ -262,7 +262,7 @@
             if (file) {
                 const reader = new FileReader()
                 reader.onload = (e) => {
-                    setFileContent(e.target.result)
+                    setFileContent(new String(e.target.result));
                 }
                 reader.readAsText(file)
             }
