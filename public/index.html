@@ -425,19 +425,8 @@
                                 break
                         }
                     } else if (response.type === 2) {
-                        const message = response.item.messages[response.item.messages.length - 1]
-                        if (message.text) {
-                            updateMessage({
-                                text: message.adaptiveCards[0].body[0].text,
-                                hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
-                                suggestions: acceptSuggestions ? message.suggestedResponses?.map(res => res.text) : []
-                            })
-                            finished()
-                        }
-                        else {
-                            continueOnRevoke || alert("Looks like the user message has triggered the Bing filter")
-                            finished({filtered: true})
-                        }
+                        // External AI suggestions support removed
+                        finished()
                     } else if (response.type === "error") {
                         reject(response.error)
                     }
