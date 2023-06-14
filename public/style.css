@@ -50,7 +50,6 @@ body {
 .messages {
     display: flex;
     flex-direction: column;
-    border: 1px solid #ccc;
     padding: 10px;
     margin-bottom: 20px;
     border-radius: 5px;

@@ -6,6 +6,7 @@ import traceback
 import urllib.request
 import emoji
 import claude
+import time
 
 from EdgeGPT import Chatbot
 from aiohttp import web
@@ -15,20 +16,30 @@ public_dir = '/public'
 
 async def sydney_process_message(user_message, context, _U, locale):
     chatbot = None
-    try:
-        if _U:
-            cookies = loaded_cookies + [{"name": "_U", "value": _U}]
-        else:
-            cookies = loaded_cookies
-        chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy)
-        async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
-                                                    webpage_context=context, search_result=True, locale=locale):
-            yield response
-    except:
-        yield {"type": "error", "error": traceback.format_exc()}
-    finally:
-        if chatbot:
-            await chatbot.close()
+    # Set the maximum number of retries
+    max_retries = 5 
+    for i in range(max_retries + 1):
+        try:
+            if _U:
+                cookies = loaded_cookies + [{"name": "_U", "value": _U}]
+            else:
+                cookies = loaded_cookies
+            chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy)
+            async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
+                                                        webpage_context=context, search_result=True, locale=locale):
+                yield response
+            break
+        except:
+            if i < max_retries:
+                print("Retrying...", i + 1, "attempts.")
+                # wait two second
+                time.sleep(2) 
+            else:
+                print("Failed after", max_retries, "attempts.")
+                yield {"type": "error", "error": traceback.format_exc()}
+        finally:
+            if chatbot:
+                await chatbot.close()
 
 
 async def claude_process_message(context):
