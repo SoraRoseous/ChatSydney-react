@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 import traceback
+import urllib.request
 
 from EdgeGPT import Chatbot
 from aiohttp import web
@@ -72,8 +73,10 @@ async def main(host, port):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", "-H", help="host:port for the server", default="localhost:65432")
-    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default="")
+    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"',
+                        default=urllib.request.getproxies().get('https'))
     args = parser.parse_args()
+    print(f"Proxy used: {args.proxy}")
 
     host, port = args.host.split(":")
     port = int(port)
