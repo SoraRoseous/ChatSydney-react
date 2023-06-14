@@ -1,4 +1,6 @@
 # ChatSydney
+中国用户请设置能翻墙的系统代理 Chinese users, please set up a system proxy that can bypass the GFW.
+
 
 ## Installation
 
