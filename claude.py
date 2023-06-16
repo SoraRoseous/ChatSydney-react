@@ -41,7 +41,7 @@ class Chatbot:
 
         await self.client.chat_postMessage(
             channel=self.slack_channel_id,
-            text=f'<@{self.claude_member_id}>',
+            text=f'<@{self.claude_member_id}> [assistant](#message)',
             thread_ts=thread_ts,
         )
 
