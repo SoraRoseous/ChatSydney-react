@@ -35,7 +35,7 @@ class Chatbot:
             thread_ts = response["ts"]
             await self.client.chat_postMessage(
                 channel=self.slack_channel_id,
-                text=message[4000:],
+                text=message[3000:],
                 thread_ts=thread_ts,
             )
 
