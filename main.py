@@ -4,6 +4,8 @@ import json
 import os
 import traceback
 import urllib.request
+import emoji
+import claude
 
 from EdgeGPT import Chatbot
 from aiohttp import web
@@ -11,7 +13,7 @@ from aiohttp import web
 public_dir = '/public'
 
 
-async def process_message(user_message, context, _U, locale):
+async def sydney_process_message(user_message, context, _U, locale):
     chatbot = None
     try:
         if _U:
@@ -27,6 +29,15 @@ async def process_message(user_message, context, _U, locale):
     finally:
         if chatbot:
             await chatbot.close()
+
+
+async def claude_process_message(context):
+    try:
+        async for reply in claude_chatbot.ask_stream(context):
+            yield {"type": "reply", "text": emoji.emojize(reply, language='alias').strip()}
+        yield {"type": "finished"}
+    except:
+        yield {"type": "error", "error": traceback.format_exc()}
 
 
 async def http_handler(request):
@@ -45,15 +56,37 @@ async def websocket_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
-    async for msg in ws:
-        if msg.type == web.WSMsgType.TEXT:
-            request = json.loads(msg.data)
-            user_message = request['message']
-            context = request['context']
-            locale = request['locale']
-            _U = request.get('_U')
-            async for response in process_message(user_message, context, _U, locale=locale):
-                await ws.send_json(response)
+    async def monitor():
+        while True:
+            if ws.closed:
+                task.cancel()
+                break
+            await asyncio.sleep(0.1)
+
+    async def main_process():
+        async for msg in ws:
+            if msg.type == web.WSMsgType.TEXT:
+                request = json.loads(msg.data)
+                user_message = request['message']
+                context = request['context']
+                locale = request['locale']
+                _U = request.get('_U')
+                bot_type = request.get("botType", "Sydney")
+                if bot_type == "Sydney":
+                    async for response in sydney_process_message(user_message, context, _U, locale=locale):
+                        await ws.send_json(response)
+                elif bot_type == "Claude":
+                    async for response in claude_process_message(context):
+                        await ws.send_json(response)
+                else:
+                    print(f"Unknown bot type: {bot_type}")
+
+    task = asyncio.ensure_future(main_process())
+    monitor_task = asyncio.ensure_future(monitor())
+    done, pending = await asyncio.wait([task, monitor_task], return_when=asyncio.FIRST_COMPLETED)
+
+    for task in pending:
+        task.cancel()
 
     return ws
 
@@ -88,6 +121,8 @@ if __name__ == '__main__':
     else:
         loaded_cookies = []
         print("cookies.json not found")
+
+    claude_chatbot = claude.Chatbot(proxy=args.proxy)
 
     loop = asyncio.get_event_loop()
     try:

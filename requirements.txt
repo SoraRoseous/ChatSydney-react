@@ -7,3 +7,5 @@ prompt_toolkit
 requests
 rich
 aiofiles
+slack_sdk
+emoji
