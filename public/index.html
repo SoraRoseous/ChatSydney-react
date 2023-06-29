@@ -495,11 +495,28 @@
                                         hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
                                         suggestions: acceptSuggestions ? message.suggestedResponses?.map(res => res.text) : []
                                     })
-                                    if (message.suggestedResponses) finished()
                                 }
                                 break
                         }
                     } else if (response.type === 2) {
+                        // Image Generate support
+                        if (response.item?.messages[2]?.contentType === "IMAGE"){
+                            const message = response.item.messages[1]
+                            const imgLinks = [...message.adaptiveCards[0].body[0].text.matchAll(/(?<=\()https:\/\/.*?(?=\))/g)];
+                            let align_image_text = "";
+                            for (let i = 0; i < imgLinks.length; i++) {
+                                align_image_text += `[![image${i}](${imgLinks[i]})](${imgLinks[i]})`
+                                if (i % 2 === 1 && i + 1 !== imgLinks.length) {
+                                    align_image_text += '\n';
+                                }
+                            }
+                            appendMessage({
+                                tag: '[assistant](#message)',
+                                text: align_image_text,
+                                hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
+                                suggestions: acceptSuggestions ? message.suggestedResponses?.map(res => res.text) : []
+                            })
+                        }
                         // External AI suggestions support removed
                         finished()
                     } else if (response.type === "error") {

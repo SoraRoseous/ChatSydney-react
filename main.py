@@ -3,12 +3,12 @@ import asyncio
 import json
 import os
 import traceback
-import urllib.request
 import emoji
 import claude
 import time
 
-from EdgeGPT import Chatbot
+from SydneyGPT.SydneyGPT import Chatbot
+from BingImageCreator import ImageGenAsync
 from aiohttp import web
 
 public_dir = '/public'
@@ -17,26 +17,58 @@ public_dir = '/public'
 async def sydney_process_message(user_message, context, _U, locale):
     chatbot = None
     # Set the maximum number of retries
-    max_retries = 5 
+    max_retries = 5
     for i in range(max_retries + 1):
         try:
             if _U:
                 cookies = loaded_cookies + [{"name": "_U", "value": _U}]
             else:
                 cookies = loaded_cookies
+            #Used to save image links temporarily
+            resp_txt = ""
+            draw = False
             chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy)
             async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                         webpage_context=context, search_result=True, locale=locale):
+                #Support for generating images
+                if (
+                    (response.get("type") == 1)
+                    and ("messages" in response["arguments"][0])
+                    and (
+                        response["arguments"][0]["messages"][0].get(
+                            "messageType",
+                        )
+                        == "GenerateContentQuery"
+                    )
+                ):
+                    async with ImageGenAsync(all_cookies=cookies) as image_generator:
+                        images = await image_generator.get_images(
+                            response["arguments"][0]["messages"][0]["text"],
+                        )
+                    for i, image in enumerate(images):
+                        resp_txt = f"{resp_txt}\n![image{i}]({image})"
+                    draw = True
+
+                elif response.get("type") == 2 and draw:
+                    # add pictures to previous messages
+                    response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"] += resp_txt
+
                 yield response
             break
-        except:
+        except TimeoutError:
             if i < max_retries:
                 print("Retrying...", i + 1, "attempts.")
                 # wait two second
                 time.sleep(2) 
             else:
                 print("Failed after", max_retries, "attempts.")
+                print({"type": "error", "error": traceback.format_exc()})
                 yield {"type": "error", "error": traceback.format_exc()}
+        except Exception as e:
+            if str(e) == "Bad images":
+                print("Bad images")
+            yield {"type": "error", "error": traceback.format_exc()}
+            break
         finally:
             if chatbot:
                 await chatbot.close()
@@ -117,8 +149,7 @@ async def main(host, port):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", "-H", help="host:port for the server", default="localhost:65432")
-    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"',
-                        default=urllib.request.getproxies().get('https'))
+    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default="http://localhost:7890")
     args = parser.parse_args()
     print(f"Proxy used: {args.proxy}")
 
