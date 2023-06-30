@@ -8,11 +8,9 @@ import claude
 import time
 
 from SydneyGPT.SydneyGPT import Chatbot
-from BingImageCreator import ImageGenAsync
 from aiohttp import web
 
 public_dir = '/public'
-
 
 async def sydney_process_message(user_message, context, _U, locale):
     chatbot = None
@@ -24,35 +22,9 @@ async def sydney_process_message(user_message, context, _U, locale):
                 cookies = loaded_cookies + [{"name": "_U", "value": _U}]
             else:
                 cookies = loaded_cookies
-            #Used to save image links temporarily
-            resp_txt = ""
-            draw = False
             chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy)
             async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                         webpage_context=context, search_result=True, locale=locale):
-                #Support for generating images
-                if (
-                    (response.get("type") == 1)
-                    and ("messages" in response["arguments"][0])
-                    and (
-                        response["arguments"][0]["messages"][0].get(
-                            "messageType",
-                        )
-                        == "GenerateContentQuery"
-                    )
-                ):
-                    async with ImageGenAsync(all_cookies=cookies) as image_generator:
-                        images = await image_generator.get_images(
-                            response["arguments"][0]["messages"][0]["text"],
-                        )
-                    for i, image in enumerate(images):
-                        resp_txt = f"{resp_txt}\n![image{i}]({image})"
-                    draw = True
-
-                elif response.get("type") == 2 and draw:
-                    # add pictures to previous messages
-                    response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"] += resp_txt
-
                 yield response
             break
         except TimeoutError:
@@ -64,9 +36,7 @@ async def sydney_process_message(user_message, context, _U, locale):
                 print("Failed after", max_retries, "attempts.")
                 print({"type": "error", "error": traceback.format_exc()})
                 yield {"type": "error", "error": traceback.format_exc()}
-        except Exception as e:
-            if str(e) == "Bad images":
-                print("Bad images")
+        except Exception:
             yield {"type": "error", "error": traceback.format_exc()}
             break
         finally:
