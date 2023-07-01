@@ -490,8 +490,12 @@
                                     })
                                 } else if (message.contentOrigin === 'Apology') {
                                     continueOnRevoke || alert('Message revoke detected')
-                                    updateMessage({revoked: true})
-                                    finished({revoked: true})
+                                    if (!sydneySuggestion) {
+                                        updateMessage({revoked: true})
+                                        finished({revoked: true})
+                                    } else {
+                                        finished()
+                                    }
                                 } else {
                                     if (message.suggestedResponses?.map(res => res.text) && !sydneySuggestion) {
                                         sydneySuggestion = message.suggestedResponses?.map(res => res.text);

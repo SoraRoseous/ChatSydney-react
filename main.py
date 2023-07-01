@@ -10,7 +10,6 @@ import time
 from SydneyGPT.SydneyGPT import Chatbot
 from aiohttp import web
 from httpx import ConnectError
-from EdgeGPT.exceptions import NotAllowedToAccess
 
 public_dir = '/public'
 
