@@ -27,18 +27,21 @@ async def sydney_process_message(user_message, context, _U, locale):
                                                         webpage_context=context, search_result=True, locale=locale):
                 yield response
             break
-        except TimeoutError:
-            if i < max_retries:
+        except Exception as e:
+            if (
+                isinstance(e, TimeoutError)
+                or isinstance(e, ConnectionResetError)
+                or "ServiceClient failure for DeepLeo" in str(e)
+            ) and i < max_retries:
                 print("Retrying...", i + 1, "attempts.")
                 # wait two second
-                time.sleep(2) 
+                time.sleep(2)
             else:
-                print("Failed after", max_retries, "attempts.")
+                if i == max_retries:
+                    print("Failed after", max_retries, "attempts.")
                 print({"type": "error", "error": traceback.format_exc()})
                 yield {"type": "error", "error": traceback.format_exc()}
-        except Exception:
-            yield {"type": "error", "error": traceback.format_exc()}
-            break
+                break
         finally:
             if chatbot:
                 await chatbot.close()
