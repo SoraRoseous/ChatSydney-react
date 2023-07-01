@@ -9,6 +9,8 @@ import time
 
 from SydneyGPT.SydneyGPT import Chatbot
 from aiohttp import web
+from httpx import ConnectError
+from EdgeGPT.exceptions import NotAllowedToAccess
 
 public_dir = '/public'
 
@@ -30,7 +32,9 @@ async def sydney_process_message(user_message, context, _U, locale):
         except Exception as e:
             if (
                 isinstance(e, TimeoutError)
+                or isinstance(e, ConnectError)
                 or isinstance(e, ConnectionResetError)
+                or "Sorry, you need to login first to access this service." in str(e)
                 or "ServiceClient failure for DeepLeo" in str(e)
             ) and i < max_retries:
                 print("Retrying...", i + 1, "attempts.")
