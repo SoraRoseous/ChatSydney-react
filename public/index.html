@@ -446,6 +446,9 @@
                 botType
             }))
 
+            //Suggestion from Sydney
+            let sydneySuggestion;
+
             return new Promise((resolve, reject) => {
                 function finished(result) {
                     websocket.close()
@@ -490,10 +493,13 @@
                                     updateMessage({revoked: true})
                                     finished({revoked: true})
                                 } else {
+                                    if (message.suggestedResponses?.map(res => res.text) && !sydneySuggestion) {
+                                        sydneySuggestion = message.suggestedResponses?.map(res => res.text);
+                                    }
                                     updateMessage({
                                         text: message.adaptiveCards[0].body[0].text,
                                         hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
-                                        suggestions: acceptSuggestions ? message.suggestedResponses?.map(res => res.text) : []
+                                        suggestions: acceptSuggestions ? sydneySuggestion : []
                                     })
                                 }
                                 break

@@ -39,7 +39,7 @@ async def sydney_process_message(user_message, context, _U, locale):
             else:
                 if i == max_retries:
                     print("Failed after", max_retries, "attempts.")
-                print({"type": "error", "error": traceback.format_exc()})
+                traceback.print_exc()
                 yield {"type": "error", "error": traceback.format_exc()}
                 break
         finally:
