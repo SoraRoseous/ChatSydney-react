@@ -35,11 +35,12 @@ class Chatbot:
     async def create(
         proxy: str | None = None,
         cookies: list[dict] | None = None,
+        imgid: Union[dict, None] = None,
     ) -> Chatbot:
         self = Chatbot.__new__(Chatbot)
         self.proxy = proxy
         self.chat_hub = ChatHub(
-            await Conversation.create(self.proxy, cookies=cookies),
+            await Conversation.create(self.proxy, cookies=cookies, imgid=imgid),
             proxy=self.proxy,
             cookies=cookies,
         )

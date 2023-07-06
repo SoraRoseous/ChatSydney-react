@@ -16,9 +16,11 @@ class ChatHubRequest:
         client_id: str,
         conversation_id: str,
         invocation_id: int = 3,
+        imgid: Union[dict, None] = None,
     ) -> None:
         self.struct: dict = {}
 
+        self.imgid: Union[dict, None] = imgid
         self.client_id: str = client_id
         self.conversation_id: str = conversation_id
         self.conversation_signature: str = conversation_signature
@@ -151,6 +153,12 @@ class ChatHubRequest:
                     "messageId": "discover-web--page-ping-mriduna-----",
                 },
             ]
+        if self.imgid:
+            self.struct["arguments"][0]["message"] = {
+                **self.struct["arguments"][0]["message"],
+                "imageUrl": f'https://www.bing.com/images/blob?bcid={self.imgid["processedBlobId"] or self.imgid["blobId"]}',
+                "originalImageUrl": f'https://www.bing.com/images/blob?bcid={self.imgid["blobId"]}'
+            }
         self.invocation_id += 1
 
         # print(timestamp)

@@ -19,6 +19,7 @@ class Conversation:
     ) -> None:
         if async_mode:
             return
+        self.imgid: Union[dict, None] = None
         self.struct: dict = {
             "conversationId": None,
             "clientId": None,
@@ -67,8 +68,10 @@ class Conversation:
     async def create(
         proxy: Union[str, None] = None,
         cookies: Union[List[dict], None] = None,
+        imgid: Union[dict, None] = None,
     ) -> "Conversation":
         self = Conversation(async_mode=True)
+        self.imgid = imgid
         self.struct = {
             "conversationId": None,
             "clientId": None,
@@ -96,7 +99,10 @@ class Conversation:
         async with httpx.AsyncClient(
             proxies=proxy,
             timeout=30,
-            headers={**HEADERS_INIT_CONVER, "x-forwarded-for": f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}"},
+            headers={
+                **HEADERS_INIT_CONVER,
+                "x-forwarded-for": f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
+            },
             transport=transport,
             cookies=formatted_cookies,
         ) as client:

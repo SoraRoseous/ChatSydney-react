@@ -42,6 +42,7 @@ class ChatHub:
             conversation_signature=conversation.struct["conversationSignature"],
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
+            imgid=conversation.imgid,
         )
         self.cookies = cookies
         self.proxy: str = proxy
@@ -118,6 +119,7 @@ class ChatHub:
             )
             # Send request
             await wss.send(append_identifier(self.request.struct))
+            # print(json.dumps(self.request.struct), "\n\n")
             draw = False
             resp_txt = ""
             result_text = ""
@@ -142,7 +144,7 @@ class ChatHub:
                     if obj is None or not obj:
                         continue
                     response = json.loads(obj)
-                    # print(response)
+                    # print(json.dumps(response, indent=4, separators=(', ', ': ')), "\n\n")
                     if response.get("type") == 1 and response["arguments"][0].get(
                         "messages",
                     ):

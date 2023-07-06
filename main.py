@@ -2,18 +2,19 @@ import argparse
 import asyncio
 import json
 import os
+import random
 import traceback
 import emoji
+import httpx
 import claude
 import time
 
 from SydneyGPT.SydneyGPT import Chatbot
 from aiohttp import web
-from httpx import ConnectError
 
 public_dir = '/public'
 
-async def sydney_process_message(user_message, context, _U, locale):
+async def sydney_process_message(user_message, context, _U, locale, imgid):
     chatbot = None
     # Set the maximum number of retries
     max_retries = 5
@@ -23,7 +24,7 @@ async def sydney_process_message(user_message, context, _U, locale):
                 cookies = loaded_cookies + [{"name": "_U", "value": _U}]
             else:
                 cookies = loaded_cookies
-            chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy)
+            chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy, imgid=imgid)
             async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                         webpage_context=context, search_result=True, locale=locale):
                 yield response
@@ -31,7 +32,7 @@ async def sydney_process_message(user_message, context, _U, locale):
         except Exception as e:
             if (
                 isinstance(e, TimeoutError)
-                or isinstance(e, ConnectError)
+                or isinstance(e, httpx.ConnectError)
                 or isinstance(e, ConnectionResetError)
                 or "Sorry, you need to login first to access this service." in str(e)
                 or "ServiceClient failure for DeepLeo" in str(e)
@@ -70,6 +71,56 @@ async def http_handler(request):
     response.headers['Cache-Control'] = 'no-store'
     return response
 
+# upload image
+async def upload_image_handler(request):
+    request_body = await request.json()
+    if request_body['image']:
+        upload_image = request_body['image']
+        HEADERS_IMG = {
+            "accept": "*/*",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+            "sec-ch-ua": "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Microsoft Edge\";v=\"114\"",
+            "sec-ch-ua-arch": "\"x86\"",
+            "sec-ch-ua-bitness": "\"64\"",
+            "sec-ch-ua-full-version": "\"114.0.1823.67\"",
+            "sec-ch-ua-full-version-list": "\"Not.A/Brand\";v=\"8.0.0.0\", \"Chromium\";v=\"114.0.5735.201\", \"Microsoft Edge\";v=\"114.0.1823.67\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-model": "\"\"",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-ch-ua-platform-version": "\"14.0.0\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "sec-ms-gec-version": "1-114.0.1823.67",
+            "Referer": "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx&wlsso=0",
+            "Referrer-Policy": "origin-when-cross-origin"
+        }
+        files={
+            'knowledgeRequest':(None, '{"imageInfo":{},"knowledgeRequest":{"invokedSkills":["ImageById"],"subscriptionId":"Bing.Chat.Multimodal","invokedSkillsRequestData":{"enableFaceBlur":true},"convoData":{"convoid":"","convotone":"Creative"}}}'),
+            'imageBase64':(None, upload_image)
+        }
+        async with httpx.AsyncClient(
+            proxies=args.proxy,
+            timeout=30,
+            headers={
+                **HEADERS_IMG,
+                "x-forwarded-for": f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
+            },
+        ) as client:
+            # Send POST request
+            img_response = await client.post(
+                url="https://www.bing.com/images/kblob",
+                files=files
+            )
+        if img_response.status_code != 200:
+            img_response.request.read()
+            print(f"Status code: {img_response.status_code}")
+            print()
+            print(img_response.request.stream._stream.decode("utf-8"))
+            raise Exception("Image upload failed")
+        return web.json_response(img_response.text)
+    else:
+        raise Exception("No image.")
 
 async def websocket_handler(request):
     ws = web.WebSocketResponse()
@@ -90,9 +141,13 @@ async def websocket_handler(request):
                 context = request['context']
                 locale = request['locale']
                 _U = request.get('_U')
+                if request.get('imgid'):
+                    imgid = json.loads(request.get('imgid'))
+                else:
+                    imgid = None
                 bot_type = request.get("botType", "Sydney")
                 if bot_type == "Sydney":
-                    async for response in sydney_process_message(user_message, context, _U, locale=locale):
+                    async for response in sydney_process_message(user_message, context, _U, locale=locale, imgid=imgid):
                         await ws.send_json(response)
                 elif bot_type == "Claude":
                     async for response in claude_process_message(context):
@@ -113,6 +168,7 @@ async def websocket_handler(request):
 async def main(host, port):
     app = web.Application()
     app.router.add_get('/ws/', websocket_handler)
+    app.router.add_post('/upload_image/', upload_image_handler)
     app.router.add_get('/{tail:.*}', http_handler)
 
     runner = web.AppRunner(app)

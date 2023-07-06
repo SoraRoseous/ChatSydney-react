@@ -19,6 +19,7 @@
     import ReactMarkdown from 'https://cdn.skypack.dev/react-markdown?min'
     import remarkBreaks from 'https://cdn.skypack.dev/remark-breaks?min'
     import remarkGfm from 'https://cdn.skypack.dev/remark-gfm?min'
+    import Resizer from 'https://cdn.skypack.dev/react-image-file-resizer@0.4.8?min'
     import * as Tiktoken from 'https://cdn.skypack.dev/js-tiktoken?min'
     import SyntaxHighlighter from 'https://esm.sh/react-syntax-highlighter@15.5.0?bundle'
 
@@ -353,6 +354,62 @@
             }
             fileInput.current.value = ''
         }
+
+        // Upload picture
+        const imageUploadInput = React.useRef(null);
+        const [imgid, setIimgid] = React.useState("");
+        const handleUploadImage = async event => {
+            setResponding(true);
+            try {
+                let image = "";
+                let file = event.target.files[0];
+                file = await resizeFile(file, "file");
+                image = await resizeFile(file, "base64");
+                if (image.length /1024 > 1024) {
+                    throw Error("Picture too large.");
+                }
+                fetch(`http://${window.location.host}/upload_image/`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        image: image,
+                    })
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    setIimgid(data);
+                })
+                .finally (() => {
+                    setResponding(false)
+                });
+            } catch (err) {
+                alert(err);
+            } 
+            imageUploadInput.current.value = '';
+        }
+
+        const resizeFile = (file, type) =>
+            new Promise((resolve) => {
+                Resizer.imageFileResizer(
+                file,
+                1920,
+                1080,
+                "JPEG",
+                90,
+                0,
+                (uri) => {
+                    if (type === "base64") {
+                        uri = uri.split(',')[1];
+                    }
+                    resolve(uri);
+                },
+                type
+                );
+            });
+
         const [previousMessages, setPreviousMessages] = React.useState(savedMessages ?? defaultMessages)
         const [contextTokens, setContextTokens] = React.useState(0)
         React.useEffect(() => {
@@ -416,6 +473,7 @@
                 alert(JSON.stringify(error))
             }
             setResponding(false)
+            setIimgid("");
         }
 
         const streamOutput = async userInput => {
@@ -443,6 +501,7 @@
                 context: formatPreviousMessages(currentPreviousMessages, botType),
                 _U: _UOverride,
                 locale: locale,
+                imgid: imgid,
                 botType
             }))
 
@@ -724,6 +783,15 @@
                     <div style={{display: "flex", justifyContent: "space-between", flexWrap: "wrap"}}>
                         <button id="sendBtn" className="button" onClick={sendMessage} disabled={responding}>
                             Send
+                        </button>
+                        <input accept="image/png,image/jpeg,image/gif" ref={imageUploadInput} type="file" style={{display: "none"}}
+                               onChange={handleUploadImage}/>
+                        <button
+                            className="button"
+                            disabled={responding}
+                            onClick={() => imageUploadInput.current.click()}
+                        >
+                            Upload image
                         </button>
 						<button id="stopBtn" className="button" onClick={stopMessage} disabled={!responding}>
                             Stop
