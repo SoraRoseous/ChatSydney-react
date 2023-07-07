@@ -510,6 +510,7 @@
                 botType
             }))
 
+            let isRevolked = false;
             //Suggestion from Sydney
             let sydneySuggestion;
 
@@ -562,6 +563,9 @@
                                         suggestions: acceptSuggestions ? sydneySuggestion : []
                                     })
                                 }
+                                if (message.contentOrigin === 'Apology') {
+                                    isRevolked = true;
+                                }
                                 break
                         }
                     } else if (response.type === 2) {
@@ -589,7 +593,9 @@
                                 } else {
                                     continueOnRevoke || alert('Message revoke detected')
                                     if (!sydneySuggestion) {
-                                        updateMessage({revoked: true});
+                                        if (!isRevolked) {
+                                            updateMessage({revoked: true});
+                                        }
                                         finished({revoked: true});
                                     } else {
                                         finished();
