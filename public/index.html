@@ -380,10 +380,15 @@
                 })
                 .then((response) => response.json())
                 .then((data) => {
-                    setIimgid(data);
+                    if (data.includes("null")) {
+                        alert("Image upload failed.");
+                        setIimgid("");
+                    } else {
+                        setIimgid(data);
+                    }
                 })
                 .finally (() => {
-                    setResponding(false)
+                    setResponding(false);
                 });
             } catch (err) {
                 alert(err);
@@ -547,15 +552,7 @@
                                         text: message.adaptiveCards[0].body[0].text,
                                         hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
                                     })
-                                } else if (message.contentOrigin === 'Apology') {
-                                    continueOnRevoke || alert('Message revoke detected')
-                                    if (!sydneySuggestion) {
-                                        updateMessage({revoked: true})
-                                        finished({revoked: true})
-                                    } else {
-                                        finished()
-                                    }
-                                } else {
+                                } else if (message.contentOrigin !== 'Apology') {
                                     if (message.suggestedResponses?.map(res => res.text) && !sydneySuggestion) {
                                         sydneySuggestion = message.suggestedResponses?.map(res => res.text);
                                     }
@@ -568,26 +565,42 @@
                                 break
                         }
                     } else if (response.type === 2) {
-                        // Image Generate support
-                        if (response.item?.messages[2]?.contentType === "IMAGE"){
-                            const message = response.item.messages[1]
-                            const imgLinks = [...message.adaptiveCards[0].body[0].text.matchAll(/(?<=\()https:\/\/.*?(?=\))/g)];
-                            let align_image_text = "";
-                            for (let i = 0; i < imgLinks.length; i++) {
-                                align_image_text += `[![image${i}](${imgLinks[i]})](${imgLinks[i]})`
-                                if (i % 2 === 1 && i + 1 !== imgLinks.length) {
-                                    align_image_text += '\n';
+                        try {
+                            const messages = response.item.messages;
+                            // Image Generate support
+                            if (messages.length >= 3 && messages[2]?.contentType === "IMAGE"){
+                                const imgLinks = [...messages[1].adaptiveCards[0].body[0].text.matchAll(/(?<=\()https:\/\/.*?(?=\))/g)];
+                                let align_image_text = "";
+                                for (let i = 0; i < imgLinks.length; i++) {
+                                    align_image_text += `[![image${i}](${imgLinks[i]})](${imgLinks[i]})`
+                                    if (i % 2 === 1 && i + 1 !== imgLinks.length) {
+                                        align_image_text += '\n';
+                                    }
                                 }
-                            }
-                            appendMessage({
-                                tag: '[assistant](#message)',
-                                text: align_image_text,
-                                hiddenText: message.text !== message.adaptiveCards[0].body[0].text ? message.text : null,
-                                suggestions: acceptSuggestions ? message.suggestedResponses?.map(res => res.text) : []
-                            })
+                                appendMessage({
+                                    tag: '[assistant](#message)',
+                                    text: align_image_text,
+                                    hiddenText: messages[1].text !== messages[1].adaptiveCards[0].body[0].text ? messages[1].text : null,
+                                    suggestions: acceptSuggestions ? messages[1].suggestedResponses?.map(res => res.text) : []
+                                })
+                            } else if (messages.length >= 2 && messages[1].contentOrigin === 'Apology') {
+                                if (messages.length >= 3 && messages[2].contentOrigin === "OffensiveImageClassifier") {
+                                    reject("Disengaged by Offensive Image Filter");
+                                } else {
+                                    continueOnRevoke || alert('Message revoke detected')
+                                    if (!sydneySuggestion) {
+                                        updateMessage({revoked: true});
+                                        finished({revoked: true});
+                                    } else {
+                                        finished();
+                                    }
+                                }
+                            } 
+                        } catch (error) {
+                            alert(error);
                         }
-                        // External AI suggestions support removed
-                        finished()
+
+                        finished();
                     } else if (response.type === "error") {
                         reject(response.error)
                     }
@@ -787,7 +800,7 @@
                         <input accept="image/png,image/jpeg,image/gif" ref={imageUploadInput} type="file" style={{display: "none"}}
                                onChange={handleUploadImage}/>
                         <button
-                            className="button"
+                            className={imgid ? "button green" : "button"}
                             disabled={responding}
                             onClick={() => imageUploadInput.current.click()}
                         >

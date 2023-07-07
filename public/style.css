@@ -39,6 +39,10 @@ body {
     transition: background-color 0.3s;
 }
 
+.button.green {
+    background-color: rgb(89, 217, 89);
+  }
+
 .button:hover {
     background-color: #0056b3;
 }

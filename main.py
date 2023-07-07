@@ -115,7 +115,6 @@ async def upload_image_handler(request):
         if img_response.status_code != 200:
             img_response.request.read()
             print(f"Status code: {img_response.status_code}")
-            print()
             print(img_response.request.stream._stream.decode("utf-8"))
             raise Exception("Image upload failed")
         return web.json_response(img_response.text)
