@@ -100,7 +100,7 @@ async def upload_image_handler(request):
             'imageBase64':(None, upload_image)
         }
         async with httpx.AsyncClient(
-            proxies=args.proxy,
+            proxies=args.proxy or None,
             timeout=30,
             headers={
                 **HEADERS_IMG,
