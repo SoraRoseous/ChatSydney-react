@@ -119,6 +119,7 @@ class Conversation:
             raise Exception("Authentication failed")
         try:
             self.struct = response.json()
+            # print(response.text)
         except (json.decoder.JSONDecodeError, NotAllowedToAccess) as exc:
             print(response.text)
             raise Exception(

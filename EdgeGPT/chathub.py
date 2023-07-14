@@ -100,10 +100,23 @@ class ChatHub:
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
 
+        # add cookies
+        req_header = HEADERS
+        if self.cookies is not None:
+            ws_cookies = []
+            for cookie in self.cookies:
+                ws_cookies.append(f"{cookie['name']}={cookie['value']}")
+            req_header.update({
+                'Cookie': ';'.join(ws_cookies),
+            })
+        
         # Check if websocket is closed
         async with connect(
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",
-            extra_headers={**HEADERS, "x-forwarded-for": f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}"},
+            extra_headers={
+                **req_header, 
+                "x-forwarded-for": f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
+            },
             max_size=None,
             ssl=ssl_context,
             ping_interval=None,
