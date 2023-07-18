@@ -210,6 +210,8 @@ class ChatHub:
                     elif response.get("type") == 2:
                         if response["item"]["result"].get("error"):
                             await self.close()
+                            if not response["item"]["firstNewMessageIndex"]:
+                                raise Exception("请前往官网检查账号是否已达24小时对话次数上限或是需要点击验证。如果是,请更换账号cookie或者点击验证。Please go to the official website to check if your account has reached the 24-hour conversation limit or needs to click verification. If so, please change your account cookie or click verification.")
                             raise Exception(
                                 f"{response['item']['result']['value']}: {response['item']['result']['message']}",
                             )
