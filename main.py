@@ -4,6 +4,7 @@ import json
 import os
 import random
 import traceback
+import uuid
 import emoji
 import httpx
 import claude
@@ -23,7 +24,7 @@ async def sydney_process_message(user_message, context, _U, locale, imgid):
             if _U:
                 cookies = loaded_cookies + [{"name": "_U", "value": _U}]
             else:
-                cookies = loaded_cookies
+                cookies = loaded_cookies + [{"name": "_U", "value": str(uuid.uuid4())}]
             chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy, imgid=imgid)
             async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                         webpage_context=context, search_result=True, locale=locale):
