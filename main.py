@@ -181,7 +181,7 @@ async def main(host, port):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", "-H", help="host:port for the server", default="localhost:65432")
-    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default="http://localhost:7890")
+    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default="")
     args = parser.parse_args()
     print(f"Proxy used: {args.proxy}")
 
