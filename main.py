@@ -11,6 +11,7 @@ import time
 
 from SydneyGPT.SydneyGPT import Chatbot
 from aiohttp import web
+from aiohttp.client_exceptions import ClientConnectorError
 
 public_dir = '/public'
 
@@ -33,7 +34,7 @@ async def sydney_process_message(user_message, context, _U, locale, imgid):
             if (
                 isinstance(e, TimeoutError)
                 or isinstance(e, httpx.ConnectError)
-                or isinstance(e, ConnectionResetError)
+                or isinstance(e, ClientConnectorError)
                 or "Sorry, you need to login first to access this service." in str(e)
                 or "ServiceClient failure for DeepLeo" in str(e)
             ) and i < max_retries:
