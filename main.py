@@ -4,7 +4,6 @@ import json
 import os
 import random
 import traceback
-import uuid
 import emoji
 import httpx
 import claude
