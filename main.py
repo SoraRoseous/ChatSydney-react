@@ -7,7 +7,6 @@ import traceback
 import emoji
 import httpx
 import claude
-import time
 
 from SydneyGPT.SydneyGPT import Chatbot
 from aiohttp import web
@@ -40,7 +39,7 @@ async def sydney_process_message(user_message, context, _U, locale, imgid):
             ) and i < max_retries:
                 print("Retrying...", i + 1, "attempts.")
                 # wait two second
-                time.sleep(2)
+                await asyncio.sleep(2)
             else:
                 if i == max_retries:
                     print("Failed after", max_retries, "attempts.")
