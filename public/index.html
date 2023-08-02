@@ -442,8 +442,14 @@
         const [responding, setResponding] = React.useState(false)
         const [editingMessageIndex, setEditingMessageIndex] = React.useState(null)
         const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false)
-        const [_UOverride, set_UOverride] = React.useState(localStorage.getItem('_U'))
         const [botType, setBotType] = React.useState(localStorage.getItem('botType') || "Sydney")
+
+        // cookies
+        const [_UOverride, set_UOverride] = React.useState(localStorage.getItem('_U'))
+        const [KievRPSSecAuthCookie, setKievRPSSecAuthCookie] = React.useState(localStorage.getItem('KievRPSSecAuth'))
+        const [SRCHHPGUSRCookie, setSRCHHPGUSRCookie] = React.useState(localStorage.getItem('SRCHHPGUSR'))
+        const [_RwBfCookie, set_RwBfCookie] = React.useState(localStorage.getItem('_RwBf'))
+
         const appendMessage = message => {
             setPreviousMessages(prevMessages => [...prevMessages, message])
         }
@@ -475,7 +481,7 @@
                     }
                 }
             } catch (error) {
-                alert(JSON.stringify(error))
+                alert(error)
             }
             setResponding(false)
             setIimgid("");
@@ -505,6 +511,9 @@
                 message: userInput,
                 context: formatPreviousMessages(currentPreviousMessages, botType),
                 _U: _UOverride,
+                KievRPSSecAuth: KievRPSSecAuthCookie,
+                SRCHHPGUSR: SRCHHPGUSRCookie,
+                _RwBf: _RwBfCookie,
                 locale: locale,
                 imgid: imgid,
                 botType
@@ -848,11 +857,31 @@
                             <option value="Claude">Claude</option>
                         </select>
                         <div>Context: {contextTokens} tokens, User Input: {userInputTokens} tokens</div>
-                        <label>_U cookie:&nbsp;
+                    </div>
+                    <div className="cookies-div" style={{display: "flex", justifyContent: "space-between", flexWrap: "wrap"}}>
+                        <label>_U:&nbsp;
                             <input onChange={event => {
                                 set_UOverride(event.target.value)
                                 localStorage.setItem('_U', event.target.value)
-                            }} value={_UOverride} placeholder="Enter cookie here"/>
+                            }} value={_UOverride} placeholder="Enter _U cookie"/>
+                        </label>
+                        <label>KievRPSSecAuth:&nbsp;
+                            <input onChange={event => {
+                                setKievRPSSecAuthCookie(event.target.value)
+                                localStorage.setItem('KievRPSSecAuth', event.target.value)
+                            }} value={KievRPSSecAuthCookie} placeholder="Enter KievRPSSecAuth cookie"/>
+                        </label>
+                        <label>SRCHHPGUSR:&nbsp;
+                            <input onChange={event => {
+                                setSRCHHPGUSRCookie(event.target.value)
+                                localStorage.setItem('SRCHHPGUSR', event.target.value)
+                            }} value={SRCHHPGUSRCookie} placeholder="Enter SRCHHPGUSR cookie"/>
+                        </label>
+                        <label>_RwBf:&nbsp;
+                            <input onChange={event => {
+                                set_RwBfCookie(event.target.value)
+                                localStorage.setItem('_RwBf', event.target.value)
+                            }} value={_RwBfCookie} placeholder="Enter _RwBf cookie"/>
                         </label>
                     </div>
                 </div>

@@ -14,16 +14,21 @@ from aiohttp.client_exceptions import ClientConnectorError
 
 public_dir = '/public'
 
-async def sydney_process_message(user_message, context, _U, locale, imgid):
+async def sydney_process_message(user_message, context, _U, KievRPSSecAuth, SRCHHPGUSR, _RwBf, locale, imgid):
     chatbot = None
     # Set the maximum number of retries
     max_retries = 5
     for i in range(max_retries + 1):
         try:
+            cookies = loaded_cookies
             if _U:
-                cookies = list(filter(lambda d: d.get('name') != '_U', loaded_cookies)) + [{"name": "_U", "value": _U}]
-            else:
-                cookies = loaded_cookies
+                cookies = list(filter(lambda d: d.get('name') != '_U', cookies)) + [{"name": "_U", "value": _U}]
+            if KievRPSSecAuth:
+                cookies = list(filter(lambda d: d.get('name') != 'KievRPSSecAuth', cookies)) + [{"name": "KievRPSSecAuth", "value": KievRPSSecAuth}]
+            if SRCHHPGUSR:
+                cookies = list(filter(lambda d: d.get('name') != 'SRCHHPGUSR', cookies)) + [{"name": "SRCHHPGUSR", "value": SRCHHPGUSR}]
+            if _RwBf:
+                cookies = list(filter(lambda d: d.get('name') != '_RwBf', cookies)) + [{"name": "_RwBf", "value": _RwBf}]
             chatbot = await Chatbot.create(cookies=cookies, proxy=args.proxy, imgid=imgid)
             async for _, response in chatbot.ask_stream(prompt=user_message, conversation_style="creative", raw=True,
                                                         webpage_context=context, search_result=True, locale=locale):
@@ -44,7 +49,7 @@ async def sydney_process_message(user_message, context, _U, locale, imgid):
                 if i == max_retries:
                     print("Failed after", max_retries, "attempts.")
                 traceback.print_exc()
-                yield {"type": "error", "error": traceback.format_exc()}
+                yield {"type": "error", "error": str(e)}
                 break
         finally:
             if chatbot:
@@ -140,13 +145,16 @@ async def websocket_handler(request):
                 context = request['context']
                 locale = request['locale']
                 _U = request.get('_U')
+                KievRPSSecAuth = request.get('KievRPSSecAuth')
+                SRCHHPGUSR = request.get('SRCHHPGUSR')
+                _RwBf = request.get('_RwBf')
                 if request.get('imgid'):
                     imgid = json.loads(request.get('imgid'))
                 else:
                     imgid = None
                 bot_type = request.get("botType", "Sydney")
                 if bot_type == "Sydney":
-                    async for response in sydney_process_message(user_message, context, _U, locale=locale, imgid=imgid):
+                    async for response in sydney_process_message(user_message, context, _U, KievRPSSecAuth, SRCHHPGUSR, _RwBf, locale=locale, imgid=imgid):
                         await ws.send_json(response)
                 elif bot_type == "Claude":
                     async for response in claude_process_message(context):
@@ -180,7 +188,7 @@ async def main(host, port):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", "-H", help="host:port for the server", default="localhost:65432")
-    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default="")
+    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default="http://localhost:7890")
     args = parser.parse_args()
     print(f"Proxy used: {args.proxy}")
 

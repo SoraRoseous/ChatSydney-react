@@ -116,7 +116,7 @@ class Conversation:
             print(f"Status code: {response.status_code}")
             print(response.text)
             print(response.url)
-            raise Exception("Authentication failed")
+            raise Exception("Authentication failed\n创建对话时认证失败,尝试更换cookie或者更换代理后再试。")
         try:
             self.struct = response.json()
             # print(response.text)
