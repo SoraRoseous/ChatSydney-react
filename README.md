@@ -44,3 +44,7 @@ The WebSocket API returns a JSON object containing the following fields:
 - `type`: The type of the message, can be the type from Bing response or `error`.
 - `message`: The response from EdgeGPT.
 - `error`: If an error occurs, this field will contain the error message.
+
+## Server
+
+If you want to deploy to the server, and use https protocol to access, then you need to change `websocket = new WebSocket(ws://${window.location.host}/ws/)` to `websocket = new WebSocket(wss://${window.location.host}/ws/)` in public/index.html
