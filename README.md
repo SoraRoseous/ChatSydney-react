@@ -30,7 +30,7 @@ Then, you can open `http://localhost:65432` in your browser to start chatting.
 ## Command Line Arguments
 
 - `--host` or `-H`: The hostname and port for the server, default is `localhost:65432`.
-- `--proxy` or `-p`: Proxy address, like `http://localhost:7890`, default is empty.
+- `--proxy` or `-p`: Proxy address, like `http://localhost:7890`, default is to use urllib to get proxy
 
 ## WebSocket API
 

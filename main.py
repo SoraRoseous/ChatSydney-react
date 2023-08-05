@@ -6,6 +6,7 @@ import random
 import traceback
 import emoji
 import httpx
+import urllib.request
 import claude
 
 from EdgeGPT.EdgeGPT import Chatbot
@@ -188,7 +189,8 @@ async def main(host, port):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", "-H", help="host:port for the server", default="localhost:65432")
-    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default="")
+    proxies = urllib.request.getproxies()
+    parser.add_argument("--proxy", "-p", help='proxy address like "http://localhost:7890"', default=proxies.get("http"))
     args = parser.parse_args()
     print(f"Proxy used: {args.proxy}")
 
