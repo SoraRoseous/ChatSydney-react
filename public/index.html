@@ -154,7 +154,7 @@
         </div>
     ));
 
-    const EditDialog = ({isOpen, handleClose, handleSubmit, initialData}) => {
+    const EditDialog = ({isOpen, handleClose, handleSubmit, initialData, selectedKey}) => {
         const [data, setData] = React.useState(initialData || {})
         const [error, setError] = React.useState(null)
 
@@ -196,8 +196,11 @@
 
         const handleSave = () => {
             if (!error) {
-                handleSubmit(data)
-                handleClose()
+                if (data.tag === "[system](#additional_instructions)") {
+                    localStorage.setItem(selectedKey + "Prompt", JSON.stringify([data]));
+                }
+                handleSubmit(data);
+                handleClose();
             }
         }
 
@@ -708,6 +711,8 @@
                     const savedMessages = localStorage.getItem("chatHistory" + selectedKey);
                     localStorage.removeItem("chatHistory" + selectedKey);
                     localStorage.setItem("chatHistory" + renamedKey, savedMessages);
+                    localStorage.setItem(renamedKey + "Prompt", localStorage.getItem(selectedKey + "Prompt"));
+                    localStorage.removeItem(selectedKey + "Prompt")
                     setSelectedKey(renamedKey);
                 }
             }
@@ -716,6 +721,7 @@
         const deleteKey = () => {
             if (selectedKey) {
                 localStorage.removeItem("chatHistory" + selectedKey);
+                localStorage.removeItem(selectedKey + "Prompt");
                 const remainingKeys = Object.keys(localStorage).filter(key => key.startsWith('chatHistory')).map(key => key.replace('chatHistory', ''));
                 setSelectedKey(remainingKeys[0] || '');
             }
@@ -752,7 +758,7 @@
                         <button
                             className="button"
                             disabled={responding}
-                            onClick={() => setPreviousMessages(defaultMessages)}
+                            onClick={() => setPreviousMessages(JSON.parse(localStorage.getItem(selectedKey + "Prompt")) ?? defaultMessages)}
                         >
                             Clear
                         </button>
@@ -890,6 +896,7 @@
                     handleClose={handleEditDialogClose}
                     handleSubmit={handleEditDialogSubmit}
                     initialData={editingMessageIndex !== null ? previousMessages[editingMessageIndex] : null}
+                    selectedKey={selectedKey}
                 />
             </div>
         )
