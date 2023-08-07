@@ -303,11 +303,11 @@
             return result
         }).join("\n\n")
         if (botType === "Sydney") {
-            if (enc.encode(formatted).length > 10000) {
+            if (enc.encode(formatted).length > 19000) {
                 // Assume the first message is system message
                 const systemMessage = `${messages[0].tag}\n${messages[0].hiddenText ?? messages[0].text}\n\n`
                 const systemMessageTokenCount = enc.encode(systemMessage).length
-                const remainingTokenCountLimit = 10000 - systemMessageTokenCount
+                const remainingTokenCountLimit = 19000 - systemMessageTokenCount
                 let remaining = formatted.slice(systemMessage.length)
                 const remainingTokens = enc.encode(remaining).slice(-remainingTokenCountLimit)
                 remaining = enc.decode(remainingTokens)
@@ -433,7 +433,9 @@
             }
             localStorage.setItem('chatHistory' + selectedKey, JSON.stringify(previousMessages))
             renderMathInElement(document.body, {output: 'mathml'})
-            setContextTokens(enc.encode(formatPreviousMessages(previousMessages)).length)
+            if (!responding) {
+                setContextTokens(enc.encode(formatPreviousMessages(previousMessages)).length)
+            }
         }, [previousMessages])
         const [userInput, setUserInput] = React.useState('')
         const [userInputTokens, setUserInputTokens] = React.useState(0)
@@ -443,6 +445,9 @@
         const [enterMode, setEnterMode] = React.useState('enter')
         const [locale, setLocale] = React.useState('zh-CN')
         const [responding, setResponding] = React.useState(false)
+        React.useEffect(() => {
+            setContextTokens(enc.encode(formatPreviousMessages(previousMessages)).length);
+        }, [responding])
         const [editingMessageIndex, setEditingMessageIndex] = React.useState(null)
         const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false)
         const [botType, setBotType] = React.useState(localStorage.getItem('botType') || "Sydney")
@@ -486,7 +491,7 @@
             } catch (error) {
                 alert(error)
             }
-            setResponding(false)
+            setResponding(false);
             setIimgid("");
         }
 
