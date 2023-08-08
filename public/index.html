@@ -588,23 +588,32 @@
                     } else if (response.type === 2) {
                         try {
                             const messages = response.item.messages;
+                            let isDraw = false;
                             // Image Generate support
-                            if (messages.length >= 3 && messages[2]?.contentType === "IMAGE"){
-                                const imgLinks = [...messages[1].adaptiveCards[0].body[0].text.matchAll(/(?<=\()https:\/\/.*?(?=\))/g)];
-                                let align_image_text = "";
-                                for (let i = 0; i < imgLinks.length; i++) {
-                                    align_image_text += `[![image${i}](${imgLinks[i]})](${imgLinks[i]})`
-                                    if (i % 2 === 1 && i + 1 !== imgLinks.length) {
-                                        align_image_text += '\n';
-                                    }
+                            messages.forEach((item) => {
+                                if (item?.contentType === "IMAGE") {
+                                    messages.forEach((item) => {
+                                        if (item?.adaptiveCards) {
+                                            const imgLinks = [...item.adaptiveCards[0].body[0].text.matchAll(/(?<=\()https:\/\/.*?(?=\))/g)];
+                                            let align_image_text = "";
+                                            for (let i = 0; i < imgLinks.length; i++) {
+                                                align_image_text += `[![image${i}](${imgLinks[i]})](${imgLinks[i]})`
+                                                if (i % 2 === 1 && i + 1 !== imgLinks.length) {
+                                                    align_image_text += '\n';
+                                                }
+                                            }
+                                            appendMessage({
+                                                tag: '[assistant](#message)',
+                                                text: align_image_text,
+                                                hiddenText: item.text !== item.adaptiveCards[0].body[0].text ? item.text : null,
+                                                suggestions: acceptSuggestions ? item.suggestedResponses?.map(res => res.text) : []
+                                            })
+                                            isDraw = true;
+                                        }
+                                    });
                                 }
-                                appendMessage({
-                                    tag: '[assistant](#message)',
-                                    text: align_image_text,
-                                    hiddenText: messages[1].text !== messages[1].adaptiveCards[0].body[0].text ? messages[1].text : null,
-                                    suggestions: acceptSuggestions ? messages[1].suggestedResponses?.map(res => res.text) : []
-                                })
-                            } else if (messages.length >= 2 && messages[1].contentOrigin === 'Apology') {
+                            });
+                            if (!isDraw && messages.length >= 2 && messages[1].contentOrigin === 'Apology') {
                                 if (messages.length >= 3 && messages[2].contentOrigin === "OffensiveImageClassifier") {
                                     reject("Disengaged by Offensive Image Filter");
                                 } else {

@@ -104,7 +104,7 @@ class ChatHub:
         locale: str = guess_locale(),
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
-        
+
         # Check if websocket is closed
         async with self.aio_session.ws_connect(
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",
@@ -212,12 +212,14 @@ class ChatHub:
                                 f"{response['item']['result']['value']}: {response['item']['result']['message']}",
                             )
                         if draw:
-                            cache = response["item"]["messages"][1]["adaptiveCards"][0][
-                                "body"
-                            ][0]["text"]
-                            response["item"]["messages"][1]["adaptiveCards"][0]["body"][
-                                0
-                            ]["text"] = (cache + resp_txt)
+                            for message in response["item"]["messages"]:
+                                if "adaptiveCards" in message:
+                                    cache = message["adaptiveCards"][0]["body"][0][
+                                        "text"
+                                    ]
+                                    message["adaptiveCards"][0]["body"][0]["text"] = (
+                                        cache + resp_txt
+                                    )
                         if (
                             response["item"]["messages"][-1]["contentOrigin"]
                             == "Apology"
