@@ -10,9 +10,9 @@
 <body>
 <div id="root"></div>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script crossorigin="anonymous" defer src="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.js"></script>
+<script crossorigin="anonymous" defer src="https://unpkg.com/katex/dist/katex.min.js"></script>
 <script crossorigin="anonymous" defer onload="renderMathInElement(document.body, {output: 'mathml'})"
-        src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/auto-render.min.js"></script>
+        src="https://unpkg.com/katex/dist/contrib/auto-render.min.js"></script>
 <script data-type="module" type="text/babel">
     import React from 'https://cdn.skypack.dev/react?min'
     import ReactDOM from 'https://cdn.skypack.dev/react-dom?min'
@@ -550,11 +550,13 @@
                         // noinspection JSUnreachableSwitchBranches
                         switch (message.messageType) {
                             case 'InternalSearchQuery':
-                                appendMessage({
-                                    tag: '[assistant](#search_query)',
-                                    text: message.text,
-                                    hiddenText: message.hiddenText
-                                })
+                                if (!("requestId" in message)) {
+                                    appendMessage({
+                                        tag: '[assistant](#search_query)',
+                                        text: message.text,
+                                        hiddenText: message.hiddenText
+                                    })
+                                }
                                 break
                             case 'InternalSearchResult':
                                 updateMessage({searchResults: message.hiddenText})
