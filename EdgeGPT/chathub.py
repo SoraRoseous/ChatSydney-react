@@ -110,8 +110,9 @@ class ChatHub:
         if self.sec_access_token:
             wss_link = (
                 "wss://sydney.bing.com/sydney/ChatHub?sec_access_token="
-                + urllib.parse.quote_plus(self.sec_access_token),
+                + urllib.parse.quote_plus(self.sec_access_token)
             )
+
         # Check if websocket is closed
         async with self.aio_session.ws_connect(
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",
