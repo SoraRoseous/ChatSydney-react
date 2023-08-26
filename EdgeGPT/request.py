@@ -124,7 +124,8 @@ class ChatHubRequest:
                     },
                     "tone": conversation_style.name.capitalize(),  # Make first letter uppercase
                     "requestId": message_id,
-                    "conversationSignature": self.conversation_signature,
+                    "conversationSignature": self.conversation_signature \
+                        if self.conversation_signature else None,
                     "participant": {
                         "id": self.client_id,
                     },
@@ -157,7 +158,7 @@ class ChatHubRequest:
             self.struct["arguments"][0]["message"] = {
                 **self.struct["arguments"][0]["message"],
                 "imageUrl": f'https://www.bing.com/images/blob?bcid={self.imgid["processedBlobId"] or self.imgid["blobId"]}',
-                "originalImageUrl": f'https://www.bing.com/images/blob?bcid={self.imgid["blobId"]}'
+                "originalImageUrl": f'https://www.bing.com/images/blob?bcid={self.imgid["blobId"]}',
             }
         self.invocation_id += 1
 

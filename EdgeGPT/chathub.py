@@ -5,6 +5,7 @@ import random
 import ssl
 import sys
 import aiohttp
+import urllib.parse
 from time import time
 from typing import Generator
 from typing import List
@@ -38,8 +39,9 @@ class ChatHub:
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
+        self.sec_access_token: str | None = conversation.sec_access_token
         self.request = ChatHubRequest(
-            conversation_signature=conversation.struct["conversationSignature"],
+            conversation_signature=conversation.struct.get("conversationSignature"),
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
             imgid=conversation.imgid,
@@ -105,6 +107,11 @@ class ChatHub:
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
 
+        if self.sec_access_token:
+            wss_link = (
+                "wss://sydney.bing.com/sydney/ChatHub?sec_access_token="
+                + urllib.parse.quote_plus(self.sec_access_token),
+            )
         # Check if websocket is closed
         async with self.aio_session.ws_connect(
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",
