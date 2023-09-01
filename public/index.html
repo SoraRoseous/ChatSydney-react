@@ -498,7 +498,11 @@
         const streamOutput = async userInput => {
             async function connectWebSocket() {
                 return new Promise((resolve, reject) => {
-                    websocket = new WebSocket(`ws://${window.location.host}/ws/`)
+                    let wssLink = `ws://${window.location.host}/ws/`
+                    if (window.location.protocol === "https:") {
+                        wssLink = `wss://${window.location.host}/ws/`
+                    }
+                    websocket = new WebSocket(wssLink)
 
                     websocket.onopen = () => {
                         resolve()
