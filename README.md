@@ -1,4 +1,4 @@
-欢迎到slack来tree new bing。https://join.slack.com/t/chatsydneycomminicate/shared_invite/zt-1x7tjzgdz-v71xazsoE206kJwFuyf1rA
+欢迎到slack来tree new bing。[https://join.slack.com/t/chatsydneycomminicate/shared_invite/zt-1x7tjzgdz-v71xazsoE206kJwFuyf1rA](https://join.slack.com/t/chatsydneycomminicate/shared_invite/zt-23d78m6xe-1UfuM_831_2uGoRgn16ESA)
 
 
 # ChatSydney
