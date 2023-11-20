@@ -20,7 +20,7 @@
     import remarkBreaks from 'https://cdn.skypack.dev/remark-breaks?min'
     import remarkGfm from 'https://cdn.skypack.dev/remark-gfm@3.0.1?min'
     import Resizer from 'https://cdn.skypack.dev/react-image-file-resizer@0.4.8?min'
-    import * as Tiktoken from 'https://cdn.skypack.dev/js-tiktoken?min'
+    import * as Tiktoken from 'https://cdn.skypack.dev/js-tiktoken@1.0.7?min'
     import SyntaxHighlighter from 'https://esm.sh/react-syntax-highlighter@15.5.0?bundle'
 
     const enc = Tiktoken.encodingForModel("gpt-4");
@@ -554,13 +554,11 @@
                         // noinspection JSUnreachableSwitchBranches
                         switch (message.messageType) {
                             case 'InternalSearchQuery':
-                                if (!("requestId" in message)) {
-                                    appendMessage({
-                                        tag: '[assistant](#search_query)',
-                                        text: message.text,
-                                        hiddenText: message.hiddenText
-                                    })
-                                }
+                                appendMessage({
+                                    tag: '[assistant](#search_query)',
+                                    text: message.text,
+                                    hiddenText: message.hiddenText
+                                })
                                 break
                             case 'InternalSearchResult':
                                 updateMessage({searchResults: message.hiddenText})

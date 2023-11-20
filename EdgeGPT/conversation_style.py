@@ -28,7 +28,12 @@ class ConversationStyle(Enum):
         "clgalileo",
         "gencontentv3",
         "travelansgnd",
+        "fluxv14l",
+        "gndelec",
+        "gndlogcf",
+        "fluxprod",
         "nojbfedge",
+        # "autosave",
     ]
     balanced = [
         "nlu_direct_response_filter",
